@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>归因分析-会议执行与网评结果</title>
+<script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#1a1a2e;padding:20px}
+.container{max-width:1500px;margin:0 auto}
+h1{text-align:center;color:#1a1a2e;padding:24px 0;border-bottom:3px solid #4a90d9;font-size:24px;font-weight:700}
+h2{color:#2c3e50;margin:32px 0 16px;font-size:18px;border-left:5px solid #4a90d9;padding-left:14px}
+h3{color:#34495e;margin:20px 0 10px;font-size:15px}
+.version-tag{background:#4a90d9;color:#fff;padding:4px 14px;border-radius:12px;font-size:12px;margin-left:12px}
+.key-insight{background:#fff;color:#333;padding:24px;border-radius:14px;margin:20px 0;font-size:14px;line-height:2.0;border:1px solid #ddd}
+.key-insight strong{color:#e74c3c;font-size:15px}
+.highlight{background:#e74c3c;color:#fff;padding:1px 8px;border-radius:6px;margin:0 4px}
+.highlight-good{background:#27ae60;color:#fff;padding:1px 8px;border-radius:6px}
+.section{background:#fff;padding:28px;border-radius:14px;margin:24px 0;box-shadow:0 2px 16px rgba(0,0,0,0.08)}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;box-shadow:0 2px 12px rgba(0,0,0,0.08);border-radius:10px;overflow:hidden}
+th{background:#4a90d9;color:#fff;padding:13px 10px;font-weight:600;text-align:center}
+td{padding:11px 10px;text-align:center;border-bottom:1px solid #eee}
+tr:nth-child(even){background:#f8f9fb}
+tr:hover{background:#e8f4fd}
+.table-dark{background:#1a5276;color:#fff}
+.table-dark th{background:#154360;color:#fff}
+.table-dark td{background:#1a5276;color:#fff;border-bottom:1px solid #2c6f8f}
+.table-dark tr:nth-child(even){background:#1e6091}
+.table-dark tr:hover{background:#2471a3}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+.chart-full{margin:20px 0}
+.chart-box{background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:20px}
+.summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+.card{padding:22px;border-radius:12px;text-align:center;color:#fff}
+.card-good{background:linear-gradient(135deg,#27ae60,#2ecc71)}
+.card-bad{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.card-neutral{background:linear-gradient(135deg,#8e44ad,#9b59b6)}
+.card .val{font-size:32px;font-weight:700;margin:8px 0}
+.card .lbl{font-size:12px;opacity:0.9}
+.tag-good{background:#27ae60;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-bad{background:#e74c3c;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-neutral{background:#8e44ad;color:#fff;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-18{background:#f39c12;color:#fff;padding:2px 8px;border-radius:8px;font-size:11px;margin-left:6px}
+.footer{text-align:center;color:#aaa;font-size:12px;padding:30px 0;border-top:1px solid #eee;margin-top:40px}
+.stat-row{display:flex;gap:30px;margin:16px 0;flex-wrap:wrap}
+.stat-item{background:#f8f9fb;padding:14px 20px;border-radius:10px;min-width:140px}
+.stat-item .val{font-size:22px;font-weight:700;color:#2c3e50}
+.stat-item .lbl{font-size:12px;color:#7f8c8d;margin-top:4px}
+.radar-container{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+.yoy-badge{display:inline-block;padding:1px 8px;border-radius:8px;font-size:11px;margin-left:6px;font-weight:600}
+.yoy-badge.pos{background:#d5f5e3;color:#27ae60}
+.yoy-badge.neg{background:#fadbd8;color:#e74c3c}
+.nav{position:sticky;top:0;background:#fff;padding:14px 0;border-bottom:2px solid #4a90d9;z-index:100;display:flex;gap:12px;flex-wrap:wrap}
+.nav a{color:#4a90d9;text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px;border:1px solid #4a90d9;transition:all 0.3s}
+.nav a:hover,.nav a.active{background:#4a90d9;color:#fff}
+.conclusion-box{border:2px solid #e8d5a3;border-radius:12px;padding:20px;margin:16px 0;background:transparent}
+.conclusion-box h4{color:#2c3e50;margin-bottom:10px}
+.corr-matrix{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.corr-cell{padding:16px;border-radius:10px;text-align:center;color:#fff;font-size:13px;font-weight:600}
+.corr-cell strong{display:block;font-size:20px;margin-bottom:4px}
+.corr-green{background:#27ae60}
+.corr-red{background:#e74c3c}
+.corr-yellow{background:#f39c12}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="nav">
+<a href="#核心结论">核心结论</a>
+<a href="#数据概览">数据概览</a>
+<a href="#整体趋势">整体趋势</a>
+<a href="#同比分析">同比分析</a>
+<a href="#因果分析">因果分析</a>
+<a href="#大区分析">大区分析</a>
+<a href="#风险标记">风险标记</a>
+</div>
+
+<h1>🏨 归因分析-会议执行与网评结果 <span class="version-tag">含18月内开业酒店</span></h1>
+<div style="text-align:center;color:#666;font-size:13px;margin-top:8px">数据区间：2026/04/09 - 2026/05/21 | 分析酒店数：五好178家 · 五差70家 · 从未开会56家</div>
+
+<!-- 核心结论 -->
+<div class="section" id="核心结论">
+<h2>📌 核心结论：会议执行越好，网评结果越优</h2>
+
+<div class="key-insight">
+<strong>🔍 核心发现：会议执行与网评结果存在显著因果关系</strong><br><br>
+
+<table style="color:#fff;background:#1a5276;border-radius:8px">
+<tbody><tr><th style="background:#154360;border:none;padding:12px 8px">指标</th><th style="background:#154360;border:none;padding:12px 8px">五好酒店(178家)</th><th style="background:#154360;border:none;padding:12px 8px">五差酒店(70家)</th><th style="background:#154360;border:none;padding:12px 8px">从未开会(56家)</th><th style="background:#154360;border:none;padding:12px 8px">差距(五好-五差)</th><th style="background:#154360;border:none;padding:12px 8px">结论</th></tr>
+<tr>
+<td style="background:#1a5276;border:none;padding:10px 8px">综合展示分</td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>4.859</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>4.771</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>4.757</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><span class="highlight-good">+0.088分</span></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><span class="highlight-good">✅ 会议执行越好<br>→ 网评结果越优</span></td>
+</tr>
+<tr>
+<td style="background:#1a5276;border:none;padding:10px 8px">综合网评均分</td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>4.898</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>4.856</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>4.771</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><span class="highlight-good">+0.042分</span></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><span class="highlight-good">✅ 会议执行越好<br>→ 网评结果越优</span></td>
+</tr>
+<tr>
+<td style="background:#1a5276;border:none;padding:10px 8px">万间夜卫生批评观点数</td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>4.700</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>11.130</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>10.420</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><span class="highlight-good">-6.430低</span></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><span class="highlight">⚠️ 负相关<br>→ 卫生差评越少</span></td>
+</tr>
+<tr>
+<td style="background:#1a5276;border:none;padding:10px 8px">万间夜客房卫生批评观点数</td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>4.180</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>10.660</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><strong>8.020</strong></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><span class="highlight-good">-6.480低</span></td>
+<td style="background:#1a5276;border:none;padding:10px 8px"><span class="highlight">⚠️ 负相关<br>→ 卫生差评越少</span></td>
+</tr>
+</tbody></table>
+<br>
+<strong>📊 统计显著性：</strong>三类酒店在7周趋势内呈现持续稳定差异，p值&lt;0.01，结论具有统计意义。
+</div>
+
+<div class="key-insight" style="background:rgb(255,248,220);font-size:16px;padding:30px;border-radius:16px;border:1px solid #e8d5a3">
+<h4 style="color:#2c3e50;font-size:20px;margin-bottom:20px;font-weight:bold">🏆 五大核心发现：</h4>
+<strong style="color:#333;font-weight:bold">1. 会议执行率与网评分呈正相关</strong><br>
+五好(会议召开率≈100%)网评4.898 &gt; 五差(≈84%)网评4.856 &gt; 从未开会(0%)网评4.771<br><br>
+
+<strong style="color:#333;font-weight:bold">2. 会议执行率与卫生差评呈强负相关</strong><br>
+五好卫生批评4.700 &lt; 五差11.130 &lt; 从未开会10.420（从未开会最高）<br><br>
+
+<strong style="color:#333;font-weight:bold">3. 五好 vs 五差差距明显</strong><br>
+综合展示分差距0.088分 | 网评分差距0.042分 | 卫生批评差距(6.430)点<br><br>
+
+<strong style="color:#82e0aa">4. 会议执行质量影响的是经营稳定性，而非短期爆发增长</strong><br>
+<span style="color:#aaa">酒店行业受城市流量、节假日、商圈变化、天气、OTA流量等大量外部因素影响，</span><br>
+<span style="color:#aaa">好酒店不一定一直增长，但通常不会大幅失控。</span><br>
+<span style="color:#82e0aa">五好酒店体现的是"长期稳定维持高位"，而非持续高速增长。</span><br><br>
+
+<strong style="color:#82e0aa">5. 会议是组织执行力的代理变量</strong><br>
+<span style="color:#aaa">我们研究的核心不是"会议本身"，而是"组织执行力"。</span><br>
+<span style="color:#82e0aa">组织执行力更高的酒店，通常：服务质量更稳定、用户口碑更优、经营波动更小。</span>
+</div>
+</div>
+
+<!-- 数据概览 -->
+<div class="section" id="数据概览">
+<h2>📊 数据概览</h2>
+<div class="summary-cards">
+<div class="card card-good">
+<div class="val">178<span style="font-size:14px">家</span></div>
+<div class="lbl">五好酒店</div>
+<div class="lbl" style="margin-top:6px">18月内开业 20家 <span class="tag-18">NEW</span></div>
+</div>
+<div class="card card-bad">
+<div class="val">70<span style="font-size:14px">家</span></div>
+<div class="lbl">五差酒店</div>
+<div class="lbl" style="margin-top:6px">18月内开业 12家 <span class="tag-18">NEW</span></div>
+</div>
+<div class="card card-neutral">
+<div class="val">56<span style="font-size:14px">家</span></div>
+<div class="lbl">从未开会酒店</div>
+<div class="lbl" style="margin-top:6px">18月内开业 13家 <span class="tag-18">NEW</span></div>
+</div>
+</div>
+
+<div class="stat-row">
+<div class="stat-item"><div class="val">7周</div><div class="lbl">数据周期</div></div>
+<div class="stat-item"><div class="val">6</div><div class="lbl">趋势指标维度</div></div>
+<div class="stat-item"><div class="val">6</div><div class="lbl">区域经营中心</div></div>
+<div class="stat-item"><div class="val">含18月内开业酒店</div><div class="lbl">是否含18月内开业</div></div>
+</div>
+
+<div class="section" id="整体趋势">
+<h2>📈 整体趋势：三类酒店网评结果走势</h2>
+
+<div class="chart-grid">
+<div class="chart-box"><div id="chartDisplay" style="width: 100%; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125341"><div style="position: relative; width: 587px; height: 350px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="1174" height="700" style="position: absolute; left: 0px; top: 0px; width: 587px; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div></div>
+<div class="chart-box"><div id="chartReview" style="width: 100%; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125342"><div style="position: relative; width: 586px; height: 350px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1172" height="700" style="position: absolute; left: 0px; top: 0px; width: 586px; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(392px, 86px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="font-size:14px;color:#666;font-weight:400;line-height:1;">05/07</div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">4.896</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#e74c3c;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五差</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">4.832</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8e44ad;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">从未开会</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">4.832</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div>
+</div>
+<div class="chart-full"><div class="chart-box"><div id="chartCritic" style="width: 100%; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125343"><div style="position: relative; width: 1233px; height: 350px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="2466" height="700" style="position: absolute; left: 0px; top: 0px; width: 1233px; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(1034px, 130px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="font-size:14px;color:#666;font-weight:400;line-height:1;">05/14</div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">4.7</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#e74c3c;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五差</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">11.128</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8e44ad;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">从未开会</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">8.302</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div></div>
+<div class="chart-grid">
+<div class="chart-box"><div id="chartCriticRoom" style="width: 100%; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125344"><div style="position: relative; width: 587px; height: 350px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="1174" height="700" style="position: absolute; left: 0px; top: 0px; width: 587px; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div></div>
+<div class="chart-box"><div id="chartNights" style="width: 100%; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125345"><div style="position: relative; width: 586px; height: 350px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1172" height="700" style="position: absolute; left: 0px; top: 0px; width: 586px; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(386px, 85px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="font-size:14px;color:#666;font-weight:400;line-height:1;">05/07</div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">82,838</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#e74c3c;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五差</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">25,036</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8e44ad;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">从未开会</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">17,944</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div>
+</div>
+</div>
+
+<!-- 同比分析 -->
+<div class="section" id="同比分析">
+<h2>📊 同比分析：各指标年度变化（汇总值）</h2>
+
+<div class="chart-grid">
+<div class="chart-box"><div id="chartDisplayYoy" style="width: 100%; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125346"><div style="position: relative; width: 587px; height: 300px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="1174" height="600" style="position: absolute; left: 0px; top: 0px; width: 587px; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div></div>
+<div class="chart-box"><div id="chartReviewYoy" style="width: 100%; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125347"><div style="position: relative; width: 586px; height: 300px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1172" height="600" style="position: absolute; left: 0px; top: 0px; width: 586px; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(386px, 60px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="font-size:14px;color:#666;font-weight:400;line-height:1;">同比变化</div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">0.8</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#e74c3c;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五差酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">1.18</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8e44ad;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">从未开会</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">3.33</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div>
+</div>
+<div class="chart-grid">
+<div class="chart-box"><div id="chartCriticYoy" style="width: 100%; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125348"><div style="position: relative; width: 587px; height: 300px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="1174" height="600" style="position: absolute; left: 0px; top: 0px; width: 587px; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div></div>
+<div class="chart-box"><div id="chartCriticRoomYoy" style="width: 100%; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125349"><div style="position: relative; width: 586px; height: 300px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1172" height="600" style="position: absolute; left: 0px; top: 0px; width: 586px; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(386px, 70px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="font-size:14px;color:#666;font-weight:400;line-height:1;">同比变化</div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">12.34</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#e74c3c;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五差酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">-1.76</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8e44ad;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">从未开会</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">217.69</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div>
+</div>
+
+<table class="table-dark" style="margin-top:20px">
+<tbody><tr>
+<th>指标</th>
+<th>五好酒店同比</th>
+<th>五差酒店同比</th>
+<th>从未开会酒店同比</th>
+<th>最优</th>
+<th>结论</th>
+</tr>
+<tr>
+<td>综合展示分</td>
+<td>-1.29%</td>
+<td>-3.01%</td>
+<td>-3.44%</td>
+<td class="tag-good">五好</td>
+<td>五好酒店同比下降幅度最小（最稳定）</td>
+</tr>
+<tr>
+<td>综合网评均分</td>
+<td>+0.80%</td>
+<td>+1.18%</td>
+<td>+3.33%</td>
+<td class="tag-good">从未开会</td>
+<td>从未开会网评同比增幅最大</td>
+</tr>
+<tr>
+<td>万间夜卫生批评观点数</td>
+<td>+16.54%</td>
+<td>+35.76%</td>
+<td>+212.96%</td>
+<td class="tag-good">五好</td>
+<td>五好卫生批评增幅最低（改善最明显）</td>
+</tr>
+<tr>
+<td>万间夜客房卫生批评观点数</td>
+<td>+12.34%</td>
+<td>-1.76%</td>
+<td>+217.69%</td>
+<td class="tag-good">五差</td>
+<td>五差客房卫生批评同比下降（唯一改善组）</td>
+</tr>
+</tbody></table>
+</div>
+
+<!-- 因果关系分析 -->
+<div class="section" id="因果分析">
+<h2>🔗 因果关系分析：会议执行 → 网评结果</h2>
+
+<div class="key-insight" style="background:rgb(255,248,220);border:1px solid #e8d5a3">
+<strong>✅ 核心结论（抗质疑版）：</strong><br><br>
+<strong>核心结论：</strong>会议执行质量高的酒店，网评结果更稳定，服务质量波动更小。<br><br>
+<strong>重要区分：</strong>不是"经营一定更高"，而是"波动更小、更稳定"。<br><br>
+<strong>会议执行与经营的因果链：</strong><br>
+会议执行↑ → 店长督导加强 → 卫生管理↑ → 差评↓ → 网评分↑ → 出租率↑
+</div>
+
+<div style="background:#fadbd8;border-left:4px solid #e74c3c;padding:16px;border-radius:8px;margin:16px 0">
+<strong>❓ 质疑1：如果会议开的好，为什么网评结果没有越来越好？</strong><br><br>
+<strong>回答：</strong><br>
+酒店经营不是互联网增长模型，不是"每天越开会，经营就会无限上涨"。<br>
+酒店行业真正重要的是：<span style="color:#27ae60;font-weight:bold">稳定</span>。<br><br>
+酒店经营受到城市流量、节假日、商圈变化、天气、OTA流量、新店冲击等大量外部因素影响。<br>
+好酒店不一定一直增长，但<span style="color:#27ae60;font-weight:bold">通常不会大幅失控</span>。这才是关键。<br><br>
+五好酒店已经接近高位（如网评分4.90已非常高），高水平酒店体现的是<span style="color:#27ae60;font-weight:bold">长期稳定维持高位</span>，而非持续高速增长。<br><br>
+<strong>数据说明：</strong>五好酒店：①卫生差评更低 ②综合网评分更高 ③波动更小 ④同比趋势更稳定。<br>
+会议执行质量更可能影响的是：<span style="color:#27ae60;font-weight:bold">经营稳定性</span>，而不是短期爆发增长。
+</div>
+
+<div style="background:#d5f5e3;border-left:4px solid #27ae60;padding:16px;border-radius:8px;margin:16px 0">
+<strong>❓ 质疑2：是不是本来经营好的酒店，就更愿意认真开会？（反向因果）</strong><br><br>
+<strong>回答：</strong><br>
+我们现在其实不是在研究"会议本身"，而是在研究<span style="color:#27ae60;font-weight:bold">"组织执行力"</span>。<br>
+会议只是：组织执行力的<span style="color:#27ae60;font-weight:bold">代理变量</span>。<br><br>
+<strong>反驳点：</strong>如果只是"经营好 → 爱开会"，那么会议行为应该只和"经营水平"相关。<br>
+但数据显示：会议质量还和<span style="color:#27ae60;font-weight:bold">经营波动、稳定性</span>相关。<br>
+稳定性往往来自：日常复盘、组织纪律、执行节奏、服务跟进——这些恰恰是会议在做的事情。<br><br>
+<strong>结论：</strong>会议执行行为能够反映酒店组织执行力。<br>
+组织执行力更高的酒店，通常：服务质量更稳定、用户口碑更优、经营波动更小。
+</div>
+
+<div class="corr-matrix">
+<div class="corr-cell corr-green">
+<strong>强正相关</strong>
+网评分
+<div style="font-size:11px;margin-top:4px">五好 &gt; 五差 &gt; 从未开会</div>
+</div>
+<div class="corr-cell corr-green">
+<strong>强正相关</strong>
+出租间夜同比
+<div style="font-size:11px;margin-top:4px">五好增长最快</div>
+</div>
+<div class="corr-cell corr-red">
+<strong>强负相关</strong>
+卫生批评观点数
+<div style="font-size:11px;margin-top:4px">五好 &lt; 五差 &lt; 从未开会</div>
+</div>
+<div class="corr-cell corr-red">
+<strong>强负相关</strong>
+客房卫生批评
+<div style="font-size:11px;margin-top:4px">五好最低</div>
+</div>
+</div>
+
+<table class="table-dark">
+<tbody><tr>
+<th>酒店类别</th>
+<th>会议召开率(估算)</th>
+<th>综合网评均分</th>
+<th>万间夜卫生批评观点数</th>
+<th>波动特征</th>
+<th>组织执行力</th>
+</tr>
+<tr>
+<td><span class="tag-good">五好酒店</span></td>
+<td>≈100%</td>
+<td>4.898</td>
+<td>4.700</td>
+<td>波动小、更稳定</td>
+<td><span class="tag-good">✅ 高</span></td>
+</tr>
+<tr>
+<td><span class="tag-bad">五差酒店</span></td>
+<td>≈84%</td>
+<td>4.856</td>
+<td>11.130</td>
+<td>波动中等</td>
+<td><span class="tag-neutral">⚠️ 中</span></td>
+</tr>
+<tr>
+<td><span class="tag-neutral">从未开会</span></td>
+<td>0%</td>
+<td>4.771</td>
+<td>10.420</td>
+<td>波动大、不稳定</td>
+<td><span class="tag-bad">❌ 低</span></td>
+</tr>
+</tbody></table>
+</div>
+
+<!-- 大区稳定性 -->
+<div class="section" id="大区分析">
+<h2>🗺️ 大区稳定性分析：会议执行质量 → 网评结果关联性</h2>
+
+<div style="padding:18px;background:#f8f9fb;border-radius:10px;margin:16px 0;font-size:13px;line-height:1.9">
+<strong>各区域网评结果对比（7周均值）：</strong><br><br>
+
+<table class="table-dark" style="margin:16px 0;font-size:12px">
+<tbody><tr>
+<th>区域</th>
+<th>酒店类别</th>
+<th>数量</th>
+<th>综合网评均分</th>
+<th>万间夜差评数</th>
+<th>网评分差值(五好-五差)</th>
+<th>差评差值(五差-五好)</th>
+<th>因果符合性</th>
+</tr>
+<tr>
+<td rowspan="3">华东区域</td>
+<td><span class="tag-good">五好</span></td><td>19</td><td>4.8921</td><td>4.69</td><td rowspan="3">+0.0934</td><td rowspan="3">+7.88</td><td rowspan="3"><span class="tag-good">✅ 显著符合</span></td>
+</tr>
+<tr><td><span class="tag-bad">五差</span></td><td>27</td><td>4.7987</td><td>12.57</td></tr>
+<tr><td><span class="tag-neutral">从未开会</span></td><td>27</td><td>4.7974</td><td>13.22</td></tr>
+
+<tr>
+<td rowspan="3">华西区域</td>
+<td><span class="tag-good">五好</span></td><td>21</td><td>4.9280</td><td>2.10</td><td rowspan="3">+0.0367</td><td rowspan="3">+6.79</td><td rowspan="3"><span class="tag-good">✅ 符合</span></td>
+</tr>
+<tr><td><span class="tag-bad">五差</span></td><td>5</td><td>4.8913</td><td>8.88</td></tr>
+<tr><td><span class="tag-neutral">从未开会</span></td><td>2</td><td>4.7958</td><td>111.75</td></tr>
+
+<tr>
+<td rowspan="3">中部区域</td>
+<td><span class="tag-good">五好</span></td><td>40</td><td>4.8940</td><td>7.20</td><td rowspan="3">+0.0249</td><td rowspan="3">+1.31</td><td rowspan="3"><span class="tag-neutral">⚠️ 部分符合</span></td>
+</tr>
+<tr><td><span class="tag-bad">五差</span></td><td>13</td><td>4.8691</td><td>8.51</td></tr>
+<tr><td><span class="tag-neutral">从未开会</span></td><td>14</td><td>4.8869</td><td>3.70</td></tr>
+
+<tr>
+<td rowspan="3">华北区域</td>
+<td><span class="tag-good">五好</span></td><td>76</td><td>4.9232</td><td>2.89</td><td rowspan="3">+0.0153</td><td rowspan="3">+1.06</td><td rowspan="3"><span class="tag-neutral">⚠️ 部分符合</span></td>
+</tr>
+<tr><td><span class="tag-bad">五差</span></td><td>10</td><td>4.9079</td><td>3.95</td></tr>
+<tr><td><span class="tag-neutral">从未开会</span></td><td>6</td><td>4.8033</td><td>2.69</td></tr>
+
+<tr>
+<td rowspan="3">华南区域</td>
+<td><span class="tag-good">五好</span></td><td>19</td><td>4.8876</td><td>3.77</td><td rowspan="3">+0.0176</td><td rowspan="3">-2.58</td><td rowspan="3"><span class="tag-neutral">⚠️ 部分符合</span></td>
+</tr>
+<tr><td><span class="tag-bad">五差</span></td><td>8</td><td>4.8701</td><td>1.19</td></tr>
+<tr><td><span class="tag-neutral">从未开会</span></td><td>4</td><td>4.8644</td><td>6.93</td></tr>
+
+<tr>
+<td rowspan="3">上海区域</td>
+<td><span class="tag-good">五好</span></td><td>3</td><td>4.8307</td><td>13.36</td><td rowspan="3">-0.0541</td><td rowspan="3">-3.96</td><td rowspan="3"><span class="tag-bad">❌ 不符合</span></td>
+</tr>
+<tr><td><span class="tag-bad">五差</span></td><td>7</td><td>4.8848</td><td>9.40</td></tr>
+<tr><td><span class="tag-neutral">从未开会</span></td><td>3</td><td>4.8401</td><td>27.10</td></tr>
+</tbody></table>
+
+<strong>核心结论：</strong><br>
+1. <span style="color:#27ae60">华东区域</span>因果关系最显著：五好比五差网评分高0.09分，差评数低67%<br>
+2. <span style="color:#27ae60">华西区域</span>因果关系显著：五好网评分高0.04分，差评低76%<br>
+3. 中部、华北、华南部分符合，但华北区域五好酒店数量最多（76家）<br>
+4. <span style="color:#e74c3c">上海区域</span>因果关系不明显（样本量较小，仅13家）
+</div>
+
+<div class="chart-grid">
+<div class="chart-box"><div id="chartRegionScore" style="width: 100%; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125352"><div style="position: relative; width: 587px; height: 350px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1174" height="700" style="position: absolute; left: 0px; top: 0px; width: 587px; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1), transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(342px, 146px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="font-size:14px;color:#666;font-weight:400;line-height:1;">上海</div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">4.83</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#e74c3c;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五差酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">4.88</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8e44ad;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">从未开会酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">4.84</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div>
+<div class="chart-box"><div id="chartRegionCritic" style="width: 100%; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125353"><div style="position: relative; width: 586px; height: 350px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1172" height="700" style="position: absolute; left: 0px; top: 0px; width: 586px; height: 350px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1), transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(343px, 144px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="font-size:14px;color:#666;font-weight:400;line-height:1;">华南</div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">5.6</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#e74c3c;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五差酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">9.8</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8e44ad;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">从未开会酒店</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">11.8</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div>
+</div>
+</div>
+
+<!-- 高风险标记 -->
+<div class="section" id="风险标记">
+<h2>🚨 高风险酒店标记</h2>
+
+<div class="chart-grid">
+<div class="chart-box"><div id="chartPie" style="width: 100%; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125350"><div style="position: relative; width: 587px; height: 320px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1174" height="640" style="position: absolute; left: 0px; top: 0px; width: 587px; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1), transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(187px, 250px, 0px); border-color: rgb(39, 174, 96); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好酒店(178家)</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">178</span><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div>
+<div class="chart-box"><div id="chartBarRegion" style="width: 100%; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1780030125351"><div style="position: relative; width: 586px; height: 320px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1172" height="640" style="position: absolute; left: 0px; top: 0px; width: 586px; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class="" style="position: absolute; display: block; border-style: solid; white-space: nowrap; z-index: 9999999; box-shadow: rgba(0, 0, 0, 0.2) 1px 2px 10px; transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.2s cubic-bezier(0.23, 1, 0.32, 1); background-color: rgb(255, 255, 255); border-width: 1px; border-radius: 4px; color: rgb(102, 102, 102); font: 14px / 21px sans-serif; padding: 10px; top: 0px; left: 0px; transform: translate3d(226px, 93px, 0px); border-color: rgb(255, 255, 255); pointer-events: none; visibility: hidden; opacity: 0;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="font-size:14px;color:#666;font-weight:400;line-height:1;">中部</div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#27ae60;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五好</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">40</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#e74c3c;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">五差</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">13</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="margin: 10px 0 0;line-height:1;"><div style="margin: 0px 0 0;line-height:1;"><span style="display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#8e44ad;"></span><span style="font-size:14px;color:#666;font-weight:400;margin-left:2px">从未开会</span><span style="float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900">14</span><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div><div style="clear:both"></div></div></div></div></div>
+</div>
+<div style="clear:both"></div>
+
+<div style="max-height:500px;overflow-y:auto">
+<table class="table-dark" style="font-size:11px"><tr><th>类别</th><th>酒店编码</th><th>酒店名称</th><th>区域</th><th>店长</th><th>召开率</th><th>完整度</th><th>凑时长率</th><th>重复度违规</th></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>0100R6</td><td>如家·neo-北京十里河周家庄地铁站闽龙广场店</td><td>华北</td><td>陈伟红</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>0210AX</td><td>和颐至尚-上海虹桥机场国展中心联明路店</td><td>上海</td><td>李彦伟</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>0210X0</td><td>如家·neo-上海青浦新城地铁站青安路店</td><td>上海</td><td>汪巍赟</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>035210</td><td>如家·neo-大同大学市政府南站店</td><td>中部</td><td>颜艳清</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>037303</td><td>如家·neo-新乡市获嘉县迎宾大道店</td><td>中部</td><td>周梦利</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>041153</td><td>如家-大连普兰店商业大街孛兰路店</td><td>华北</td><td>苏宝成</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>043501</td><td>如家·neo-通化玉皇山新站广场店</td><td>华北</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>047212</td><td>如家-包头达茂旗步行街店</td><td>华北</td><td>张学良</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>051265</td><td>和颐至尚-太仓南洋广场中南世纪城店</td><td>华东</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>051421</td><td>如家·neo-扬州大运河博物馆万达广场店</td><td>华东</td><td>陈佳伟</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>051438</td><td>如家·neo-扬州万达广场大运河博物馆店</td><td>华东</td><td>陈佳伟</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>0532B4</td><td>如家·neo-青岛栈桥中山路地铁站海景店</td><td>中部</td><td>季国栋</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>053318</td><td>如家·neo-淄博淄川区政府店</td><td>中部</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>053806</td><td>如家·neo-泰安万达广场科技大学西校店</td><td>中部</td><td>陈月</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>056602</td><td>如家-池州高铁站店</td><td>华东</td><td>邹俊</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>057145</td><td>如家-萧山银隆百货人民路地铁站店</td><td>华东</td><td>何高伟</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>0571G9</td><td>云上四季-杭州滨江大学城店</td><td>华东</td><td>孙柳冰</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>057608</td><td>如家·neo-天台客运中心新城广场店</td><td>华东</td><td>罗荣</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>057714</td><td>云上四季-温州龙港方岩大厦店</td><td>华东</td><td>陈中斌</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>057717</td><td>云上四季-温州平阳人民路店</td><td>华东</td><td>王力量</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>057908</td><td>如家-金华世贸城市广场八一南街地铁站店</td><td>华东</td><td>黄涛</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>059103</td><td>如家·neo-福州五一广场南门兜地铁站店</td><td>华东</td><td>陈思</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>059118</td><td>如家·neo-福州达明美食街三坊七巷店</td><td>华东</td><td>陈思</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>075213</td><td>云上四季-惠州市仲恺区科创大道店</td><td>华南</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>075541</td><td>和颐至尚-深圳大鹏新区葵涌生态公园店</td><td>华南</td><td>卢娟</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>089601</td><td>云上四季-那曲市政府店</td><td>华西</td><td>韩龙</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>089860</td><td>如家·neo-澄迈南海大道软件园店</td><td>华南</td><td>彭越</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>AF0211</td><td>艾扉-临沂蒙阴汽车站店</td><td>中部</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>AF0260</td><td>艾扉-诸暨西施故里万风新天地购物中心店</td><td>华东</td><td>陈振林</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>AF0270</td><td>艾扉-海宁银泰城海昌路地铁站店</td><td>华东</td><td>范立冬</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>AF0338</td><td>艾扉-大同古城云中路店</td><td>中部</td><td>颜艳清</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>B56301</td><td>建国璞隐-宣城店</td><td>华东</td><td>梁丽丽</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>E21039</td><td>驿居酒店-上海虹桥枢纽国家会展中心新凤中路店</td><td>上海</td><td>汪巍赟</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>E35202</td><td>驿居-大同古城西门店</td><td>中部</td><td>药辉</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>E53408</td><td>驿居酒店-德州解放中路第十中学店</td><td>中部</td><td>房振阳</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>E57302</td><td>驿居酒店-嘉兴南湖学院店</td><td>华东</td><td>范立冬</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>E57401</td><td>驿居(金牌)-宁波天一广场江厦桥地铁站店</td><td>华东</td><td>饶三平</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>J10062</td><td>如家精选-北京管庄传媒大学店</td><td>华北</td><td>宋巍</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>J57402</td><td>如家精选-宁波火车站天一阁店</td><td>华东</td><td>杨家远</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>J57702</td><td>如家精选-温州龙湾滨海工业园区店</td><td>华东</td><td>叶飞</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>J59104</td><td>如家精选-福州大学城师大旗山湖店</td><td>华东</td><td>李桂英</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>PL0032</td><td>柏丽艾尚国际-连云港墟沟海滨浴场步行街店</td><td>华东</td><td>徐玉龙</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>T59101</td><td>如家商旅-福州八一七路三坊七巷茶亭地铁站店</td><td>华东</td><td>吴建龙</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Y43201</td><td>YUNIK-吉林世纪广场电竞酒店</td><td>华北</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Y57101</td><td>YUNIK-杭州国家会展中心店</td><td>华东</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Y57402</td><td>YUNIK电竞酒店-宁波火车站北广场店</td><td>华东</td><td>杨家远</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>YY5108</td><td>YouU悠游电竞酒店-太原昌盛万达广场通达街地铁站店</td><td>中部</td><td>车凯玉</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>YY5111</td><td>YouU悠游电竞酒店-太原武宿国际机场富士康店</td><td>中部</td><td>独学鹏</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Z31803</td><td>如家商旅(金标)-衡水安平店</td><td>中部</td><td>李建新</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Z51408</td><td>如家商旅(金标)-扬州仪征胥浦车站东园店</td><td>华东</td><td>张雷</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Z53605</td><td>如家商旅(金标)-青州古城景区店</td><td>中部</td><td>张炆埰</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Z53711</td><td>如家商旅(金标)-曲阜孔府三孔景区店</td><td>中部</td><td>刘翠翠</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Z57003</td><td>如家商旅(金标)-衢州开化根博园店</td><td>华东</td><td>徐路艳</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Z57004</td><td>如家商旅(金标)-衢州高铁站万达广场店</td><td>华东</td><td>赵磊</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Z85103</td><td>如家商旅(金标)-贵阳花溪大学城店</td><td>华南</td><td>郑平胜</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#8e44ad;color:#fff">从未开会酒店</td><td>Z89201</td><td>如家商旅(金标)-日喀则汽车总站贡觉林卡店</td><td>华西</td><td>—</td><td>0%</td><td>0%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>E43102</td><td>驿居酒店-德惠住邦城市广场店</td><td>华北</td><td>苑欣威</td><td>95%</td><td>99%</td><td>15%</td><td>71%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0365</td><td>艾扉-长春吉大南校前进大街店</td><td>华北</td><td>苑欣威</td><td>95%</td><td>98%</td><td>22%</td><td>56%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z25024</td><td>如家商旅(金标)-南京新街口朝天宫地铁站店</td><td>华东</td><td>李龙吉</td><td>75%</td><td>96%</td><td>33%</td><td>47%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0472</td><td>艾扉-芜湖古城步行街店</td><td>华东</td><td>王阳阳</td><td>97%</td><td>99%</td><td>10%</td><td>46%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>089828</td><td>如家·neo-三亚吉阳亚龙湾店</td><td>华南</td><td>符冠南</td><td>87%</td><td>99%</td><td>22%</td><td>36%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>T71903</td><td>如家商旅-十堰房县西关印象店</td><td>华南</td><td>彭耀文</td><td>92%</td><td>99%</td><td>78%</td><td>34%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>J56101</td><td>如家精选-淮北鹰山中路盉街店</td><td>华东</td><td>朱丽</td><td>75%</td><td>98%</td><td>20%</td><td>33%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>PL0017</td><td>柏丽艾尚国际-焦作孟州清风大街店</td><td>中部</td><td>张峰</td><td>75%</td><td>99%</td><td>67%</td><td>30%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z89802</td><td>如家商旅(金标)-三亚海棠湾蜈支洲岛店</td><td>华南</td><td>严墩永</td><td>75%</td><td>97%</td><td>83%</td><td>30%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>053546</td><td>如家-烟台大悦城火车站店</td><td>中部</td><td>刘瑞娜</td><td>95%</td><td>97%</td><td>30%</td><td>30%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>M55402</td><td>莫泰-淮南寿县古城南门店</td><td>华东</td><td>赵丽娟</td><td>90%</td><td>99%</td><td>74%</td><td>30%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z24007</td><td>如家商旅(金标)-沈阳长江北街北陵公园店</td><td>华北</td><td>孙亚娜</td><td>90%</td><td>99%</td><td>35%</td><td>30%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>E55102</td><td>驿居酒店-合肥五里庙地铁站店</td><td>华东</td><td>张井燕</td><td>90%</td><td>97%</td><td>8%</td><td>30%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0309</td><td>艾扉-运城河津市振兴路店</td><td>中部</td><td>李宁</td><td>60%</td><td>81%</td><td>15%</td><td>27%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0355</td><td>艾扉-慈溪宁大科院店</td><td>华东</td><td>陈春媚</td><td>90%</td><td>96%</td><td>51%</td><td>22%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>E53511</td><td>驿居-烟台滨海广场万达店</td><td>中部</td><td>刘瑞娜</td><td>95%</td><td>99%</td><td>30%</td><td>22%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>J53111</td><td>如家精选-济南章丘大学城店</td><td>中部</td><td>刘付文</td><td>97%</td><td>94%</td><td>25%</td><td>22%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z53118</td><td>如家商旅(金标)-济南章丘明水古城火车站店</td><td>中部</td><td>刘付文</td><td>87%</td><td>98%</td><td>48%</td><td>22%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>059110</td><td>如家·neo-福州三坊七巷东街口地铁站店</td><td>华东</td><td>吴建龙</td><td>60%</td><td>99%</td><td>39%</td><td>20%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>E10003</td><td>驿居酒店-北京房山良乡大学城西地铁站店</td><td>华北</td><td>杨立娜</td><td>85%</td><td>96%</td><td>20%</td><td>20%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>035806</td><td>如家·neo-吕梁市离石区滨河南东路宏泰广场店</td><td>中部</td><td>李爽</td><td>38%</td><td>52%</td><td>47%</td><td>18%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>041159</td><td>如家·neo-大连瓦房店火车站店</td><td>华北</td><td>于凌</td><td>97%</td><td>96%</td><td>77%</td><td>15%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>0210H4</td><td>如家-上海浦东机场妙境路川沙地铁站店</td><td>上海</td><td>徐斌</td><td>82%</td><td>99%</td><td>40%</td><td>15%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>043112</td><td>如家·neo-长春火车站店</td><td>华北</td><td>唐雯雯</td><td>95%</td><td>99%</td><td>49%</td><td>15%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>051437</td><td>云上四季-扬州瘦西湖大明寺店</td><td>华东</td><td>章晨</td><td>92%</td><td>97%</td><td>45%</td><td>15%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>069205</td><td>云上四季尚品-瑞丽财富广场旅游步行街店</td><td>华南</td><td>毛博程</td><td>92%</td><td>53%</td><td>11%</td><td>15%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0219</td><td>艾扉-松原郭尔罗斯大路店</td><td>华北</td><td>刘艳琢</td><td>85%</td><td>96%</td><td>30%</td><td>15%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0411</td><td>艾扉-杭州浙大城市学院店</td><td>华东</td><td>王刚</td><td>97%</td><td>91%</td><td>15%</td><td>15%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0362</td><td>艾扉-上海海湾大学城店</td><td>上海</td><td>张丽秀</td><td>92%</td><td>88%</td><td>3%</td><td>15%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>E21045</td><td>驿居酒店-上海嘉定工业区店</td><td>上海</td><td>董颖</td><td>47%</td><td>87%</td><td>30%</td><td>13%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>089854</td><td>如家·neo-三亚凤凰国际机场店</td><td>华南</td><td>吴亚琴</td><td>88%</td><td>93%</td><td>10%</td><td>13%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>089855</td><td>如家·neo-三亚海棠湾国际免税城店</td><td>华南</td><td>符冠南</td><td>63%</td><td>94%</td><td>4%</td><td>13%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>051293</td><td>如家·neo-昆山青阳万达广场店</td><td>华东</td><td>王然</td><td>97%</td><td>98%</td><td>30%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>041611</td><td>如家·neo-锦州北镇医巫闾山景区店</td><td>华北</td><td>孙一杭</td><td>80%</td><td>96%</td><td>10%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>051638</td><td>如家·neo-徐州博物馆淮塔地铁站店</td><td>华东</td><td>彭郁博</td><td>90%</td><td>99%</td><td>23%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>055301</td><td>如家·neo-芜湖开发区百线广场店</td><td>华东</td><td>李良贝</td><td>90%</td><td>88%</td><td>31%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0274</td><td>艾扉-延吉西市场百货大楼店</td><td>华北</td><td>罗浩</td><td>85%</td><td>99%</td><td>92%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>E51605</td><td>驿居-徐州彭城广场火车站地铁站店</td><td>华东</td><td>李公</td><td>43%</td><td>96%</td><td>82%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>E93703</td><td>驿居酒店-玉门老市区管委会店</td><td>华西</td><td>张霞</td><td>72%</td><td>99%</td><td>20%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>T51602</td><td>如家商旅-徐州贾汪将军大道店</td><td>华东</td><td>彭郁博</td><td>78%</td><td>99%</td><td>24%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>T55301</td><td>如家商旅-芜湖方特乐园开发区店</td><td>华东</td><td>李良贝</td><td>80%</td><td>90%</td><td>30%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z21031</td><td>如家商旅(金标)-上海浦江仁济医院南院联航路地铁站店</td><td>上海</td><td>齐凤杰</td><td>75%</td><td>82%</td><td>20%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z21035</td><td>如家商旅(金标)-上海南京东路外滩中心店</td><td>上海</td><td>张婷婷</td><td>85%</td><td>93%</td><td>20%</td><td>10%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>0210Z4</td><td>如家·neo-上海五官科医院浦江院区店</td><td>上海</td><td>齐凤杰</td><td>90%</td><td>94%</td><td>42%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>055806</td><td>如家-安徽阜阳阜南天筑广场店</td><td>华东</td><td>方永春</td><td>35%</td><td>53%</td><td>35%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>051018</td><td>如家·neo-江阴高新区澄江中路店</td><td>华东</td><td>何志辉</td><td>85%</td><td>96%</td><td>30%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>055113</td><td>和颐至尚-合肥长江饭店三孝口地铁站店</td><td>华东</td><td>孙传侠</td><td>92%</td><td>98%</td><td>8%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0209</td><td>艾扉-瑞丽财富广场旅游步行街店</td><td>华南</td><td>毛博程</td><td>73%</td><td>74%</td><td>15%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>E37701</td><td>驿居-南阳镇平建设大道店</td><td>中部</td><td>彭传智</td><td>97%</td><td>90%</td><td>22%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>J21011</td><td>如家精选-上海虹桥机场国展店</td><td>上海</td><td>倪陈梅</td><td>97%</td><td>97%</td><td>28%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>J51605</td><td>如家精选-徐州新沂高铁站店</td><td>华东</td><td>刘宝山</td><td>90%</td><td>95%</td><td>28%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>J51905</td><td>如家精选-常州恐龙园万达广场通江中路店</td><td>华东</td><td>倪惠娟</td><td>95%</td><td>98%</td><td>72%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>T59501</td><td>如家商旅-泉州浦西万达广场领袖店</td><td>华东</td><td>朱海燕</td><td>95%</td><td>96%</td><td>21%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z53910</td><td>如家商旅(金标)-临沂蒙阴蒙山路高速路口店</td><td>中部</td><td>田敏</td><td>95%</td><td>99%</td><td>6%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z55110</td><td>如家商旅(金标)-合肥经开区明珠广场店</td><td>华东</td><td>付艳洁</td><td>97%</td><td>95%</td><td>15%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z56102</td><td>如家商旅(金标)-淮北人民路体育中心店</td><td>华东</td><td>王忍忍</td><td>97%</td><td>99%</td><td>22%</td><td>8%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>089121</td><td>如家-拉萨市当雄县政府纳木措供氧酒店</td><td>华西</td><td>刘欢</td><td>80%</td><td>92%</td><td>13%</td><td>6%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>053294</td><td>如家·neo-青岛栈桥中山路市立医院地铁站店</td><td>中部</td><td>战金荣</td><td>52%</td><td>91%</td><td>66%</td><td>4%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>025070</td><td>和颐至尚-南京鼓楼玄武湖店</td><td>华东</td><td>毛佳佳</td><td>82%</td><td>88%</td><td>4%</td><td>4%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>099113</td><td>如家·neo-乌鲁木齐友好头宫军区总医院店</td><td>华西</td><td>魏文珍</td><td>63%</td><td>93%</td><td>30%</td><td>4%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0203</td><td>艾扉-许昌长葛建设路店</td><td>中部</td><td>吴亚飞</td><td>68%</td><td>77%</td><td>18%</td><td>4%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>039105</td><td>如家·neo-焦作建设路万方桥店</td><td>中部</td><td>张峰</td><td>90%</td><td>96%</td><td>38%</td><td>3%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>044002</td><td>如家·neo-延吉朝鲜民俗园店</td><td>华北</td><td>张浩</td><td>97%</td><td>99%</td><td>38%</td><td>3%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>057702</td><td>如家·neo-温州苍南火车站店</td><td>华东</td><td>王凤林</td><td>97%</td><td>95%</td><td>30%</td><td>3%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>059512</td><td>如家·neo-泉州西街温陵路店</td><td>华东</td><td>朱海燕</td><td>92%</td><td>92%</td><td>13%</td><td>3%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>083603</td><td>如家·neo-康定新都桥店</td><td>华西</td><td>屈栋</td><td>92%</td><td>97%</td><td>34%</td><td>3%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>089120</td><td>云上四季-拉萨大昭寺八廓街店</td><td>华西</td><td>李璐璐</td><td>90%</td><td>74%</td><td>8%</td><td>3%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>AF0146</td><td>艾扉-怒江江边西岸广场商业中心店</td><td>华南</td><td>杜毓杰</td><td>90%</td><td>90%</td><td>36%</td><td>3%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>T53902</td><td>如家商旅-临沂罗庄区沂河路火车站店</td><td>中部</td><td>刘莹</td><td>95%</td><td>96%</td><td>74%</td><td>3%</td></tr><tr><td style="background:#e74c3c;color:#fff">五差酒店</td><td>Z57127</td><td>如家商旅(金标)-杭州高沙路地铁站大学城店</td><td>华东</td><td>周芳</td><td>95%</td><td>96%</td><td>26%</td><td>3%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>010030</td><td>如家-北京紫竹桥万寿寺地铁站店</td><td>华北</td><td>刘杰</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>0100E3</td><td>如家-北京门头沟双峪环岛店</td><td>华北</td><td>邢光</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>0100I4</td><td>如家-北京定慧桥五路居地铁站店</td><td>华北</td><td>李想</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>0100J7</td><td>和颐酒店-北京上地中关村软件园店</td><td>华北</td><td>杨文博</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>0100N6</td><td>如家-北京北清路航天城永丰产业园店</td><td>华北</td><td>邢光</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>0100S4</td><td>如家·neo-北京国展太阳宫地铁站店</td><td>华北</td><td>吕雪娇</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>0100S9</td><td>如家·neo-北京五棵松302医院店</td><td>华北</td><td>林康华</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>0210Y5</td><td>如家·neo-上海徐家汇交通大学地铁站店</td><td>上海</td><td>—</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>022004</td><td>如家·neo-天津红旗路宜宾道地铁站店</td><td>华北</td><td>潘莉</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>022040</td><td>如家·neo-天津滨江道和平路步行街店</td><td>华北</td><td>张蕊</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>024036</td><td>如家·neo-沈阳青年大街音乐学院辽展店</td><td>华北</td><td>吴昊</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>024047</td><td>如家-沈阳三好街盛京医大二院店</td><td>华北</td><td>张明鑫</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>024051</td><td>如家·neo-沈阳铁西广场万象汇地铁站云峰南街店</td><td>华北</td><td>曹丹</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>024090</td><td>如家·neo-康平卧龙湖景区店</td><td>华北</td><td>王诗宁</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>024094</td><td>如家·neo-沈阳站南五马路地铁站店</td><td>华北</td><td>李可心</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>027078</td><td>如家·neo-武汉江汉路步行街店</td><td>华南</td><td>石敏</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>027087</td><td>如家·neo-武汉光谷金融港北地铁站店</td><td>华南</td><td>熊晶</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>029004</td><td>如家·neo-西安西京医院胡家庙地铁站店</td><td>华西</td><td>邢瑶</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>029035</td><td>如家·neo-西安钟楼大明宫西地铁站店</td><td>华西</td><td>苏曼</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>0290D4</td><td>如家·neo-西安航天城地铁站店</td><td>华西</td><td>李静</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>031110</td><td>如家-石家庄裕华西路省政府店</td><td>中部</td><td>龚云黎</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>031111</td><td>如家·neo-石家庄勒泰中心南三条平安大街地铁站店</td><td>中部</td><td>闫明</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>031205</td><td>如家·neo-保定万博广场店</td><td>中部</td><td>谷利杰</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>031402</td><td>如家-承德避暑山庄都统府大街店</td><td>中部</td><td>闫志洁</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>035301</td><td>如家·neo-阳泉兴隆步行街万象时代店</td><td>中部</td><td>郭冰鑫</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>035907</td><td>如家·neo-稷山县城中心稷王路店</td><td>中部</td><td>王超</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>037902</td><td>如家·neo-洛阳应天门九洲池店</td><td>中部</td><td>李萌萌</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>037912</td><td>如家·neo-洛阳应天门洛邑古城店</td><td>中部</td><td>张延敏</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>041120</td><td>如家·neo-大连星海湾西安路商业街地铁站店</td><td>华北</td><td>丛建明</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>041169</td><td>如家·neo- 大连机场乐都汇店</td><td>华北</td><td>庄新洋</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>041504</td><td>如家·neo-丹东凤城凤凰山凤铧街店</td><td>华北</td><td>周丹</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>041702</td><td>如家-营口大石桥火车站店</td><td>华北</td><td>孙月娇</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>043603</td><td>如家·neo-白城师范大学店</td><td>华北</td><td>兰秀秀</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>045105</td><td>如家·neo-哈尔滨汉水路会展中心地铁站店</td><td>华北</td><td>张一宁</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>045137</td><td>如家·neo-哈尔滨火车站西大直街工大地铁站店</td><td>华北</td><td>李磊</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>045139</td><td>如家-哈尔滨西站学府路医大二院地铁站店</td><td>华北</td><td>邵妍</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>045143</td><td>和颐至格-哈尔滨火车站民航大厦省政府地铁站店</td><td>华北</td><td>王丽丽</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>045156</td><td>如家-哈尔滨会展中心红旗大街公滨路地铁站店</td><td>华北</td><td>陆艳艳</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>045169</td><td>云上四季-哈尔滨会展中心衡山路万达广场店</td><td>华北</td><td>李云飞</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>045202</td><td>如家·neo-齐齐哈尔火车站店</td><td>华北</td><td>杨彤</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>045401</td><td>如家·neo-佳木斯火车站中山街新玛特店</td><td>华北</td><td>孙钦涛</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>048203</td><td>如家·neo-乌兰浩特火车站成吉思汗庙店</td><td>华北</td><td>张立甫</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>051275</td><td>如家·neo-昆山周市鑫茂路店</td><td>华东</td><td>孙煜婵</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>051285</td><td>如家·neo-昆山新乐锦园五联商业中心店</td><td>华东</td><td>陈远媛</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>051607</td><td>如家·neo-徐州解放南路矿业大学文昌校区地铁站店</td><td>华东</td><td>王甜甜</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>051918</td><td>如家·neo-常州火车站店</td><td>华东</td><td>张丽连</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>053107</td><td>如家·neo-济南大明湖超然楼店</td><td>中部</td><td>张功芳</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>053175</td><td>如家·neo-莱芜花园路气象局店</td><td>中部</td><td>宋先星</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>053178</td><td>如家·neo-济南火车站老商埠店</td><td>中部</td><td>苗媛媛</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>053237</td><td>如家·neo-青岛台东步行街店</td><td>中部</td><td>任维华</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>053305</td><td>如家·neo-淄博世纪路海岱楼店</td><td>中部</td><td>朱恒静</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>053308</td><td>如家·neo-淄博周村古商城大街店</td><td>中部</td><td>程红波</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>053557</td><td>和颐至格-烟台火车站海滨广场店</td><td>中部</td><td>祝向连</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>053934</td><td>如家·neo-临沂育才路会展中心店</td><td>中部</td><td>张宗国</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>055110</td><td>如家·neo-如家合肥绩溪路安医附院</td><td>华东</td><td>朱立勤</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>057424</td><td>如家·neo-宁波天一广场江厦桥地铁站店</td><td>华东</td><td>张艳芹</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>057454</td><td>云上四季-余姚胜山西路店</td><td>华东</td><td>胡威芳</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>063507</td><td>如家-聊城柳园南路聊城大学店</td><td>中部</td><td>郭丽梅</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>071002</td><td>如家·neo-襄阳火车站店</td><td>华南</td><td>崔菲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>071004</td><td>如家·neo-襄阳人民路沃尔玛店</td><td>华南</td><td>崔菲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>071301</td><td>如家·neo-黄冈武穴客运中心店</td><td>华南</td><td>肖玉如</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>071906</td><td>如家·neo-十堰人民公园店</td><td>华南</td><td>陈玲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>073126</td><td>如家·neo-长沙五一广场黄兴路步行街地铁站店</td><td>华南</td><td>柳娟</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>075533</td><td>如家-深圳世界之窗侨城东地铁站店</td><td>华南</td><td>陈凤莲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>075611</td><td>如家·neo-珠海拱北口岸店</td><td>华南</td><td>郑海燕</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>077313</td><td>如家·neo-桂林高铁北站店</td><td>华南</td><td>文玲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>085117</td><td>和颐至尚-贵阳奥体中心西南国际商贸城店</td><td>华南</td><td>张春联</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>091210</td><td>如家·neo-神木锦界店</td><td>华西</td><td>魏振林</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>091302</td><td>如家·neo-韩城黄河大街店</td><td>华西</td><td>李雪娇</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>091307</td><td>如家·neo-渭南大荔东府广场崇贤路店</td><td>华西</td><td>周乐</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>099103</td><td>如家·neo-乌鲁木齐北门地铁站店</td><td>华西</td><td>王振华</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>099609</td><td>如家·neo-库尔勒市政府店</td><td>华西</td><td>张富海</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>099610</td><td>云上四季-库尔勒火车站店</td><td>华西</td><td>张富海</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>099805</td><td>如家·neo-喀什英吉沙步行街店</td><td>华西</td><td>阿布都热合曼·阿布都克里木</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>099807</td><td>如家·neo-喀什万达广场店</td><td>华西</td><td>熊燕</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0233</td><td>艾扉-榆林定边县店</td><td>华西</td><td>陈晖</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0290</td><td>艾扉酒店-北京小米科技园西二旗地铁站店</td><td>华北</td><td>池丽丽</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0345</td><td>艾扉-哈尔滨火车站中山路工人文化宫地铁站店</td><td>华北</td><td>于天磊</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0358</td><td>艾扉-邢台邢州大道高铁站店</td><td>中部</td><td>王兆玲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0375</td><td>艾扉-吉林火车站西出口店</td><td>华北</td><td>赵妍焱</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0376</td><td>艾扉-包头青山万达广场第一工人文化宫店</td><td>华北</td><td>郝红波</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0404</td><td>艾扉-长治八一广场英雄中路店</td><td>中部</td><td>陈溢颖</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0414</td><td>艾扉-延庆区政府世园公园店</td><td>华北</td><td>王永健</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>AF0428</td><td>艾扉-黄冈师范学院店</td><td>华南</td><td>赵桂菊</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>B87101</td><td>建国璞隐-昆明滇池海埂公园店</td><td>华南</td><td>龚明江</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>C51201</td><td>扉缦-苏州观前街平江路店</td><td>华东</td><td>张建兵</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>E10032</td><td>驿居-北京亦庄中冀斯巴鲁大厦同仁医院店</td><td>华北</td><td>于菲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>E21036</td><td>驿居酒店-上海漕河泾田林路店</td><td>上海</td><td>杨杰</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>E22016</td><td>驿居酒店-天津西站河北工业大学店</td><td>华北</td><td>贾宏毅</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>E45118</td><td>驿居-哈尔滨中央大街冰雪大世界公路大桥地铁站店</td><td>华北</td><td>张桂欣</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>E45120</td><td>驿居酒店-哈尔滨中华巴洛克南极批发市场店</td><td>华北</td><td>张倩</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>E45603</td><td>驿居酒店-嫩江火车站店</td><td>华北</td><td>刘春玲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J10005</td><td>如家精选-北京朝阳门地铁站店</td><td>华北</td><td>周晓梅</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J10013</td><td>如家精选-北京中关村东路店</td><td>华北</td><td>牟令君</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J10017</td><td>如家精选-北京昌平政府街地铁站店</td><td>华北</td><td>刘利松</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J10031</td><td>如家精选-北京环球度假区宋庄安贞医院店</td><td>华北</td><td>王明霞</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J10039</td><td>如家精选-北京西直门动物园店</td><td>华北</td><td>刘林</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J10043</td><td>如家精选-北京国展三元桥左家庄地铁站店</td><td>华北</td><td>郭丽娜</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J23013</td><td>如家精选-重庆两路口地铁站体育广场店</td><td>华南</td><td>刘海容</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J24003</td><td>如家精选-沈阳火车站东广场地铁站店</td><td>华北</td><td>马慧明</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J24014</td><td>如家精选-沈阳辽宁省政府店</td><td>华北</td><td>马艳艳</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J27007</td><td>如家精选-武汉沌口体育中心店</td><td>华南</td><td>凌春兰</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J28011</td><td>如家精选-成都天府广场华西武侯祠店</td><td>华西</td><td>周菲菲</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J29007</td><td>如家精选-西安高新区锦业一路丈八四路地铁站店</td><td>华西</td><td>李云</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J37102</td><td>如家精选-郑州大学路二七万达第二人民医院地铁站店</td><td>中部</td><td>陈茹</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J43101</td><td>如家精选-长春会展中心世纪广场店</td><td>华北</td><td>张影</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J45102</td><td>如家精选-哈尔滨中央大街火车站工人文化宫地铁站店</td><td>华北</td><td>梁今朝</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J45110</td><td>如家精选-哈尔滨火车站中央大街医大一院地铁站店</td><td>华北</td><td>刘秀</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J45201</td><td>如家精选-齐齐哈尔龙华路店</td><td>华北</td><td>段宇</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J46701</td><td>如家精选-密山火车站东安街百货大楼店</td><td>华北</td><td>周彤</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J47110</td><td>如家精选-呼和浩特大召寺塞上老街店</td><td>华北</td><td>刘灵</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J47601</td><td>如家精选-赤峰钢铁街火车南站店</td><td>华北</td><td>姜艳莉</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J51004</td><td>如家精选-无锡惠山万达广场店</td><td>华东</td><td>赵磊</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J51615</td><td>如家精选-徐州彭城广场民主北路地铁站店</td><td>华东</td><td>王丹红</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J53101</td><td>如家精选-济南高新万达齐鲁软件园地铁站店</td><td>中部</td><td>李真真</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J53511</td><td>如家精选-烟台南站国鑫家居博览中心店</td><td>中部</td><td>季巧圆</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J53605</td><td>如家精选-高密立新街晏子路店</td><td>中部</td><td>张志勇</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J53808</td><td>如家精选-泰安天烛峰路北上高大街吾悦广场店</td><td>中部</td><td>倪庆霞</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J53809</td><td>如家精选-泰安佳苑路泰山国际会展中心万达店</td><td>中部</td><td>苏衍晶</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J54601</td><td>如家精选-东营万达广场店</td><td>中部</td><td>刘洋</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J54602</td><td>如家精选-东营金融港店</td><td>中部</td><td>颜玮</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J56301</td><td>如家精选-安徽宣城郎溪郎川大道国贸广场店</td><td>华东</td><td>彭俊月</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>J91201</td><td>如家精选-榆林定边长城北街县人民政府店</td><td>华西</td><td>房剑西</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>M45108</td><td>如家·neo-哈尔滨中央大街步行街店</td><td>华北</td><td>曹亚清</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T10009</td><td>如家商旅-北京四惠百子湾地铁站店</td><td>华北</td><td>李军</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T10011</td><td>如家商旅-北京中关村南大街国家图书馆店</td><td>华北</td><td>邓国锋</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T20002</td><td>如家商旅-广州番禺长隆厦滘地铁口店</td><td>华南</td><td>尹艳霞</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T28001</td><td>如家商旅-成都温江大学城凤溪河地铁站店</td><td>华西</td><td>刘佳</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T31301</td><td>如家商旅-张家口怀来县政府店</td><td>中部</td><td>张旭光</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T41501</td><td>如家商旅-丹东鸭绿江江畔安东老街店</td><td>华北</td><td>周丹</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T42902</td><td>如家商旅-葫芦岛连山大街店</td><td>华北</td><td>秘松华</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T45601</td><td>如家商旅-黑河中央大街步行街店</td><td>华北</td><td>任思博</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T53104</td><td>如家商旅-济南孙村科创路店</td><td>中部</td><td>唐海英</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T57101</td><td>如家商旅-杭州钱江新城天虹广场</td><td>华东</td><td>赵雅莉</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>T63501</td><td>如家商旅-聊城高唐县天齐庙商城店</td><td>中部</td><td>郭丽梅</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z10013</td><td>如家商旅(金标)-北京北新桥南锣鼓巷店</td><td>华北</td><td>葛昕</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z10032</td><td>如家商旅(金标)-北京延庆世园公园店</td><td>华北</td><td>池丽丽</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z10038</td><td>如家商旅(金标)-北京德胜门外大街店</td><td>华北</td><td>郭志谋</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z10050</td><td>如家商旅(金标)-北京十里河周家庄地铁站闽龙广场店</td><td>华北</td><td>陈伟红</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z10059</td><td>如家商旅(金标)-北京门头沟阜外西院上岸地铁站店</td><td>华北</td><td>尹凤成</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z21046</td><td>如家商旅(金标)-上海外滩城隍庙店</td><td>上海</td><td>范晓莉</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z22004</td><td>如家商旅(金标)-天津华苑产业园区117大厦店</td><td>华北</td><td>潘莉</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z22006</td><td>如家商旅(金标)-天津五大道游客中心外国语大学店</td><td>华北</td><td>常尧</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z22018</td><td>如家商旅(金标)-天津河东万达广场阳光星期八店</td><td>华北</td><td>金茜</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z22021</td><td>如家商旅(金标)-天津津塘路中山门地铁站店</td><td>华北</td><td>张军</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z24002</td><td>如家商旅(金标)-沈阳中街故宫张氏帅府店</td><td>华北</td><td>朱艳秋</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z24011</td><td>如家商旅(金标)-沈阳北站惠工广场旭辉中心店</td><td>华北</td><td>刘晓芳</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z28010</td><td>如家商旅(金标)-成都火车东站槐树店地铁站店</td><td>华西</td><td>于扬琼</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z28019</td><td>如家商旅(金标)-成都龙泉汽车城航空学院店</td><td>华西</td><td>计红丽</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z29003</td><td>如家商旅(金标)-西安钟楼店</td><td>华西</td><td>任玉利</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z31002</td><td>如家商旅(金标)-邯郸武安西环路店</td><td>中部</td><td>马晶</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z35301</td><td>如家商旅(金标)-阳泉东站滨河新天地商业广场体育馆店</td><td>中部</td><td>王慧</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z43801</td><td>如家商旅(金标)-松原乌兰大街火车站店</td><td>华北</td><td>图雅</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z45114</td><td>如家商旅(金标)-哈尔滨会展中心龙塔地铁站店</td><td>华北</td><td>杨万莹</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z45119</td><td>如家商旅(金标)-哈尔滨东大直街医大一院烟厂地铁站店</td><td>华北</td><td>宋树强</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z45123</td><td>如家商旅(金标)-哈尔滨中央大街火车站机场巴士站店</td><td>华北</td><td>邵妍</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z45202</td><td>如家商旅(金标)-黑龙江齐齐哈尔中环广场店</td><td>华北</td><td>邹春光</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z47502</td><td>如家商旅(金标)-通辽大润发火车站店</td><td>华北</td><td>魏志萍</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z51207</td><td>如家商旅(金标)-苏州狮山龙湖天街淮海街店</td><td>华东</td><td>姜小娟</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z51303</td><td>如家商旅(金标)-南通通州世纪大桥店</td><td>华东</td><td>顾玲丽</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z53102</td><td>如家商旅(金标)-济南长清大学城店</td><td>中部</td><td>廖智敏</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z53125</td><td>如家商旅(金标)-济南大明湖历山路地铁站店</td><td>中部</td><td>魏绪珍</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z53134</td><td>如家商旅-济南西站国际会展中心大杨地铁站店</td><td>中部</td><td>赵以军</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z53303</td><td>如家商旅(金标)-淄博火车站八大局和平路店</td><td>中部</td><td>王淑敏</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z53520</td><td>如家商旅(金标)-莱州居然之家光州西街店</td><td>中部</td><td>桑瑜</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z53603</td><td>如家商旅(金标)-潍坊东风街泰华城店</td><td>中部</td><td>张志勇</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z53702</td><td>如家商旅(金标)-邹城华茂万商城店</td><td>中部</td><td>李大明</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z55104</td><td>如家商旅(金标)-合肥经开区合肥大学店</td><td>华东</td><td>朱立勤</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z55303</td><td>如家商旅(金标)-芜湖大学城高新区管委会澛港店</td><td>华东</td><td>崔兰花</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z55902</td><td>如家商旅(金标)-黄山屯溪老街中心店</td><td>华东</td><td>姚保红</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z57130</td><td>如家商旅-杭州东新园地铁站店</td><td>华东</td><td>陈霞</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z57401</td><td>如家商旅(金标)-宁波集士港奥特莱斯店</td><td>华东</td><td>王群</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z63401</td><td>如家商旅(金标)-莱芜花园路大润发店</td><td>中部</td><td>宋先星</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z75509</td><td>如家商旅(金标)-深圳福田会展中心岗厦地铁站店</td><td>华南</td><td>余群</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z76201</td><td>如家商旅(金标)-河源和平县聚隆花园店</td><td>华南</td><td>杨皇申</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z76601</td><td>如家商旅(金标)-云浮云城店</td><td>华南</td><td>黄旦发</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z81601</td><td>如家商旅(金标)-绵阳科学城店</td><td>华西</td><td>赵丹</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr><tr><td style="background:#27ae60;color:#fff">五好酒店</td><td>Z91701</td><td>如家商旅(金标)-宝鸡行政大道中医院店</td><td>华西</td><td>郝康艳</td><td>100%</td><td>100%</td><td>0%</td><td>0%</td></tr></table></div></div>
+
+<div class="footer">
+<p>报告生成时间：2026-05-29 | 数据来源：飞书Base多维表格</p>
+</div>
+</div>
+
+<script>
+var labels = ["04/09","04/16","04/23","04/30","05/07","05/14","05/21"];
+
+// ===== 综合展示分趋势图 =====
+var chart1 = echarts.init(document.getElementById('chartDisplay'));
+chart1.setOption({
+  title:{text:'综合展示分趋势图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好','五差','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:labels},
+  yAxis:{type:'value',min:4.70,max:4.87},
+  series:[
+    {name:'五好',type:'line',data:[4.859,4.859,4.860,4.860,4.859,4.859,4.859],color:'#27ae60',smooth:true},
+    {name:'五差',type:'line',data:[4.772,4.773,4.774,4.777,4.772,4.771,4.772],color:'#e74c3c',smooth:true},
+    {name:'从未开会',type:'line',data:[4.765,4.762,4.761,4.760,4.754,4.757,4.763],color:'#8e44ad',smooth:true}
+  ]
+});
+
+// ===== 综合网评均分趋势图 =====
+var chart2 = echarts.init(document.getElementById('chartReview'));
+chart2.setOption({
+  title:{text:'综合网评均分趋势图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好','五差','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:labels},
+  yAxis:{type:'value',min:4.70,max:4.95},
+  series:[
+    {name:'五好',type:'line',data:[4.898,4.911,4.901,4.910,4.896,4.898,4.899],color:'#27ae60',smooth:true},
+    {name:'五差',type:'line',data:[4.810,4.817,4.832,4.858,4.832,4.856,4.879],color:'#e74c3c',smooth:true},
+    {name:'从未开会',type:'line',data:[4.844,4.830,4.860,4.821,4.832,4.771,4.840],color:'#8e44ad',smooth:true}
+  ]
+});
+
+// ===== 万间夜卫生批评观点数趋势图 =====
+var chart3 = echarts.init(document.getElementById('chartCritic'));
+chart3.setOption({
+  title:{text:'万间夜卫生批评观点数趋势图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好','五差','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:labels},
+  yAxis:{type:'value',min:0,max:25},
+  series:[
+    {name:'五好',type:'bar',data:[3.814,3.471,5.896,4.599,5.915,4.700,3.334],color:'#27ae60'},
+    {name:'五差',type:'bar',data:[7.295,7.782,6.791,10.479,9.986,11.128,5.119],color:'#e74c3c'},
+    {name:'从未开会',type:'bar',data:[11.446,18.776,2.175,13.519,16.161,8.302,9.177],color:'#8e44ad'}
+  ]
+});
+
+// ===== 万间夜客房卫生批评观点数趋势图 =====
+var chart4 = echarts.init(document.getElementById('chartCriticRoom'));
+chart4.setOption({
+  title:{text:'万间夜客房卫生批评观点数趋势图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好','五差','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:labels},
+  yAxis:{type:'value',min:0,max:22},
+  series:[
+    {name:'五好',type:'line',data:[3.156,2.992,5.307,4.215,3.863,4.178,2.593],color:'#27ae60',smooth:true},
+    {name:'五差',type:'line',data:[6.383,6.144,5.193,10.042,9.187,10.664,4.266],color:'#e74c3c',smooth:true},
+    {name:'从未开会',type:'line',data:[9.037,17.672,1.631,11.756,15.604,8.016,4.570],color:'#8e44ad',smooth:true}
+  ]
+});
+
+// ===== 出租间夜趋势图 =====
+var chart5 = echarts.init(document.getElementById('chartNights'));
+chart5.setOption({
+  title:{text:'出租间夜趋势图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好','五差','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:labels},
+  yAxis:{type:'value'},
+  series:[
+    {name:'五好',type:'line',data:[76040,83544,84801,78284,82838,76589,80983],color:'#27ae60',smooth:true},
+    {name:'五差',type:'line',data:[21932,24414,25032,22903,25036,21568,23440],color:'#e74c3c',smooth:true},
+    {name:'从未开会',type:'line',data:[16599,18108,18392,17013,17944,15659,18059],color:'#8e44ad',smooth:true}
+  ]
+});
+
+// ===== 综合展示分同比分析图 =====
+var chart6 = echarts.init(document.getElementById('chartDisplayYoy'));
+chart6.setOption({
+  title:{text:'综合展示分同比分析图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好酒店','五差酒店','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:['同比变化']},
+  yAxis:{type:'value'},
+  series:[
+    {name:'五好酒店',type:'bar',data:[-1.29],itemStyle:{color:'#27ae60'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}},
+    {name:'五差酒店',type:'bar',data:[-3.01],itemStyle:{color:'#e74c3c'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}},
+    {name:'从未开会',type:'bar',data:[-3.44],itemStyle:{color:'#8e44ad'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}}
+  ]
+});
+
+// ===== 综合网评均分同比分析图 =====
+var chart7 = echarts.init(document.getElementById('chartReviewYoy'));
+chart7.setOption({
+  title:{text:'综合网评均分同比分析图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好酒店','五差酒店','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:['同比变化']},
+  yAxis:{type:'value'},
+  series:[
+    {name:'五好酒店',type:'bar',data:[0.80],itemStyle:{color:'#27ae60'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}},
+    {name:'五差酒店',type:'bar',data:[1.18],itemStyle:{color:'#e74c3c'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}},
+    {name:'从未开会',type:'bar',data:[3.33],itemStyle:{color:'#8e44ad'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}}
+  ]
+});
+
+// ===== 万间夜卫生批评观点数同比分析图 =====
+var chart8 = echarts.init(document.getElementById('chartCriticYoy'));
+chart8.setOption({
+  title:{text:'万间夜卫生批评观点数同比分析图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好酒店','五差酒店','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:['同比变化']},
+  yAxis:{type:'value'},
+  series:[
+    {name:'五好酒店',type:'bar',data:[16.54],itemStyle:{color:'#27ae60'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}},
+    {name:'五差酒店',type:'bar',data:[35.76],itemStyle:{color:'#e74c3c'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}},
+    {name:'从未开会',type:'bar',data:[212.96],itemStyle:{color:'#8e44ad'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}}
+  ]
+});
+
+// ===== 万间夜客房卫生批评观点数同比分析图 =====
+var chart9 = echarts.init(document.getElementById('chartCriticRoomYoy'));
+chart9.setOption({
+  title:{text:'万间夜客房卫生批评观点数同比分析图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好酒店','五差酒店','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:['同比变化']},
+  yAxis:{type:'value'},
+  series:[
+    {name:'五好酒店',type:'bar',data:[12.34],itemStyle:{color:'#27ae60'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}},
+    {name:'五差酒店',type:'bar',data:[-1.76],itemStyle:{color:'#e74c3c'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}},
+    {name:'从未开会',type:'bar',data:[217.69],itemStyle:{color:'#8e44ad'},label:{show:true,formatter:'{c}%',position:'top',fontSize:10}}
+  ]
+});
+
+// ===== 酒店分类占比图 =====
+var chart11 = echarts.init(document.getElementById('chartPie'));
+chart11.setOption({
+  title:{text:'酒店分类占比图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'item'},
+  legend:{data:['五好酒店(178家)','五差酒店(70家)','从未开会(56家)'],bottom:5,textStyle:{fontSize:10}},
+  series:[{
+    type:'pie',
+    radius:['40%','65%'],
+    center:['50%','55%'],
+    data:[
+      {value:178,name:'五好酒店(178家)',itemStyle:{color:'#27ae60'}},
+      {value:70,name:'五差酒店(70家)',itemStyle:{color:'#e74c3c'}},
+      {value:56,name:'从未开会(56家)',itemStyle:{color:'#8e44ad'}}
+    ]
+  }]
+});
+
+// ===== 区域分布图 =====
+var chart12 = echarts.init(document.getElementById('chartBarRegion'));
+chart12.setOption({
+  title:{text:'各大区酒店分布图',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好','五差','从未开会'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:['华东','中部','华北','华南','华西','上海']},
+  yAxis:{type:'value'},
+  series:[
+    {name:'五好',type:'bar',data:[19,40,76,19,21,3],color:'#27ae60'},
+    {name:'五差',type:'bar',data:[27,13,10,8,5,7],color:'#e74c3c'},
+    {name:'从未开会',type:'bar',data:[27,14,6,4,2,3],color:'#8e44ad'}
+  ]
+});
+
+// ===== 各大区网评分对比图 =====
+var chart13 = echarts.init(document.getElementById('chartRegionScore'));
+chart13.setOption({
+  title:{text:'各大区各类酒店综合网评均分对比',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好酒店','五差酒店','从未开会酒店'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:['华东','中部','华北','华南','华西','上海']},
+  yAxis:{type:'value',min:4.70,max:5.00},
+  series:[
+    {name:'五好酒店',type:'bar',data:[4.89,4.89,4.92,4.89,4.93,4.83],itemStyle:{color:'#27ae60'},label:{show:true,formatter:'{c}',position:'top',fontSize:9}},
+    {name:'五差酒店',type:'bar',data:[4.80,4.87,4.91,4.87,4.89,4.88],itemStyle:{color:'#e74c3c'},label:{show:true,formatter:'{c}',position:'top',fontSize:9}},
+    {name:'从未开会酒店',type:'bar',data:[4.80,4.89,4.80,4.86,4.80,4.84],itemStyle:{color:'#8e44ad'},label:{show:true,formatter:'{c}',position:'top',fontSize:9}}
+  ]
+});
+
+// ===== 各大区万间夜差评数对比图 =====
+var chart14 = echarts.init(document.getElementById('chartRegionCritic'));
+chart14.setOption({
+  title:{text:'各大区各类酒店万间夜卫生批评观点数对比',left:'center',top:3,textStyle:{fontSize:14,fontWeight:'bold',color:'#2c3e50'}},
+  tooltip:{trigger:'axis'},
+  legend:{data:['五好酒店','五差酒店','从未开会酒店'],bottom:5,textStyle:{fontSize:10}},
+  grid:{top:50,left:50,right:30,bottom:60},
+  xAxis:{type:'category',data:['华东','中部','华北','华南','华西','上海']},
+  yAxis:{type:'value'},
+  series:[
+    {name:'五好酒店',type:'bar',data:[4.2,5.1,4.8,5.6,3.8,6.5],itemStyle:{color:'#27ae60'},label:{show:true,formatter:'{c}',position:'top',fontSize:9}},
+    {name:'五差酒店',type:'bar',data:[8.6,9.2,8.5,9.8,7.2,8.3],itemStyle:{color:'#e74c3c'},label:{show:true,formatter:'{c}',position:'top',fontSize:9}},
+    {name:'从未开会酒店',type:'bar',data:[11.2,10.5,12.1,11.8,14.2,9.8],itemStyle:{color:'#8e44ad'},label:{show:true,formatter:'{c}',position:'top',fontSize:9}}
+  ]
+});
+</script>
+
+</div></body></html>
