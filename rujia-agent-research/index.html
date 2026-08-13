@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>如家C端预订Agent产品调研｜5分钟汇报版</title>
+<style>
+  :root{
+    --red:#c91d2e; --red-dark:#971424; --ink:#17191c; --muted:#656b73;
+    --line:#e5e7eb; --paper:#fff; --bg:#f1f2f4; --blue:#315ea8;
+    --blue-bg:#edf4ff; --green:#21764b; --green-bg:#edf8f1;
+    --orange:#a55717; --orange-bg:#fff4e9; --rose-bg:#fff0f2;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif}
+  body{width:100%;min-width:320px;overflow-x:hidden}
+  .page{width:min(100%,1600px);margin:0 auto;background:var(--paper);box-shadow:0 0 30px rgba(20,24,30,.08)}
+  .hero{background:linear-gradient(135deg,#15171a 0%,#25282d 62%,#37171d 100%);color:#fff;padding:70px 72px 58px;position:relative;overflow:hidden}
+  .hero:after{content:"";position:absolute;width:460px;height:460px;border:1px solid rgba(255,255,255,.09);border-radius:50%;right:-120px;top:-210px;box-shadow:0 0 0 62px rgba(255,255,255,.025),0 0 0 130px rgba(255,255,255,.018)}
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:21px;letter-spacing:1px;color:#ffdfe3;font-weight:700}
+  .eyebrow:before{content:"";width:34px;height:5px;border-radius:5px;background:#ef4053}
+  h1{font-size:54px;line-height:1.14;margin:18px 0 12px;letter-spacing:-1px}
+  .sub{font-size:23px;color:#cdd0d5;margin-bottom:38px}
+  .hero-conclusion{position:relative;z-index:1;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-left:7px solid #ef4053;border-radius:12px;padding:25px 28px;font-size:29px;line-height:1.55;font-weight:650}
+  .hero-conclusion b{color:#ff9ba7}
+  .content{padding:48px 64px 70px}
+  section{margin-bottom:48px}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:22px}
+  .sec-title{font-size:36px;font-weight:850;letter-spacing:-.5px}
+  .time{font-size:18px;color:var(--red);font-weight:800;background:var(--rose-bg);border-radius:999px;padding:8px 14px}
+  .lead{font-size:24px;line-height:1.6;color:#30343a;margin:0 0 22px}
+  .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:18px 0 24px}
+  .type-card{border:1px solid var(--line);border-radius:13px;padding:20px 22px;min-height:154px;position:relative}
+  .type-card.ota{background:#fff1f2;border-color:#edc3c8}.type-card.ai{background:#eef4ff;border-color:#cadbf6}.type-card.brand{background:#edf8f1;border-color:#c8e3d1}.type-card.hotel{background:#f4f4f5;border:2px dashed #b8bcc2}
+  .type-card h3{font-size:23px;margin:0 0 8px}.type-card p{font-size:18px;line-height:1.48;margin:0;color:#444a51}.type-card .members{display:block;font-size:15px;color:#747a82;margin-bottom:8px}
+  .type-card.hotel h3{color:#555a61}.type-card.hotel strong{color:var(--red-dark)}
+  .quadrant{border:1px solid var(--line);border-radius:14px;padding:16px 18px 12px;background:#fbfbfc}
+  .quadrant svg{display:block;width:100%;height:auto}.quad-note{font-size:15px;color:#656b73;line-height:1.45;margin:9px 2px 0}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;margin:10px 0 0;font-size:15px;color:#4a4f56}.legend span{display:flex;align-items:center;gap:7px}.legend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .stage{display:grid;grid-template-columns:1fr 56px 1fr 56px 1fr;align-items:center;margin:22px 0 28px}
+  .stage-box{border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;background:#fafafa;min-height:108px}
+  .stage-box.active{background:var(--rose-bg);border:2px solid #e87b87}
+  .stage-box strong{display:block;font-size:25px;margin-bottom:8px}
+  .stage-box span{font-size:19px;color:var(--muted)}
+  .arrow{font-size:32px;text-align:center;color:#a3a7ad}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .card{border:1px solid var(--line);border-radius:14px;padding:24px 25px;background:#fff;box-shadow:0 5px 16px rgba(20,25,32,.045)}
+  .card.blue{background:var(--blue-bg);border-color:#cbdcf7}.card.orange{background:var(--orange-bg);border-color:#f0d3b8}.card.rose{background:var(--rose-bg);border-color:#efc7cd}.card.green{background:var(--green-bg);border-color:#c9e5d3}
+  .card h3{font-size:25px;margin:0 0 11px}.card p{font-size:20px;line-height:1.55;margin:0;color:#3c4148}
+  .tag{display:inline-block;font-size:16px;font-weight:800;border-radius:6px;padding:5px 9px;margin-bottom:10px;background:#fff;color:var(--red);border:1px solid #efc3c8}
+  .market-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #dfe2e6;border-radius:13px;overflow:hidden;table-layout:fixed}
+  .market-table th{background:#202327;color:#fff;font-size:17px;line-height:1.3;text-align:left;padding:14px 11px;border-right:1px solid #42464c}
+  .market-table th:last-child{border-right:0}
+  .market-table td{vertical-align:top;font-size:15.5px;line-height:1.42;padding:13px 11px;border-right:1px solid #e1e4e8;border-bottom:1px solid #e1e4e8;color:#383d44}
+  .market-table td:last-child{border-right:0}.market-table tr:last-child td{border-bottom:0}
+  .market-table tbody tr:nth-child(even){background:#fafafa}
+  .market-table tbody tr.key{background:#fff3f4}
+  .market-table .product{font-size:17px;font-weight:850;color:#1e2227}
+  .market-table .pts{display:block;margin-top:5px;color:var(--red);font-weight:900;font-size:16px}
+  .market-table .grade{display:inline-block;padding:2px 6px;border-radius:5px;background:#edf4ff;color:#315ea8;font-size:13px;font-weight:850;margin-right:4px}
+  .market-note{margin:12px 0 0;color:#656b73;font-size:15px;line-height:1.5}
+  .heatmap{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #dfe2e6;border-radius:13px;overflow:hidden;table-layout:fixed}
+  .heatmap th{background:#202327;color:#fff;font-size:17px;padding:13px 10px;text-align:center;border-right:1px solid #41454a}.heatmap th:first-child{text-align:left}.heatmap th:last-child{border-right:0}
+  .heatmap td{font-size:16px;padding:10px;border-right:1px solid #e0e3e7;border-bottom:1px solid #e0e3e7;text-align:center}.heatmap td:first-child{text-align:left;font-weight:800}.heatmap tr:last-child td{border-bottom:0}.heatmap td:last-child{border-right:0}
+  .heatmap .group td{padding:7px 10px;background:#f2f3f5;color:#646a72;font-size:14px;font-weight:800;text-align:left}
+  .level{display:inline-block;min-width:54px;border-radius:6px;padding:4px 8px;font-weight:800}.lv4{background:#dff3e6;color:#17683f}.lv3{background:#e8f0ff;color:#315b9e}.lv2{background:#fff2df;color:#965315}.lv1{background:#ffe7e9;color:#a52331}
+  .compare{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #dde0e4;border-radius:13px;overflow:hidden;table-layout:fixed;margin-top:18px}
+  .compare th{background:#202327;color:#fff;font-size:17px;text-align:left;padding:13px 14px}.compare td{font-size:17px;line-height:1.46;padding:14px;border-right:1px solid #e0e3e6;border-bottom:1px solid #e0e3e6;vertical-align:top}.compare tr:last-child td{border-bottom:0}.compare td:last-child{border-right:0}.compare b{color:var(--red-dark)}
+  .opportunity{margin-top:15px;background:#fff1f2;border-left:6px solid var(--red);border-radius:10px;padding:17px 20px;font-size:20px;line-height:1.5}
+  .evidence-hub{margin-top:24px;border-top:3px solid var(--ink);padding-top:18px}
+  .evidence-hub h3{font-size:25px;margin:0 0 8px}.evidence-hub>p{font-size:16px;color:#646a72;margin:0 0 14px;line-height:1.5}
+  .evidence-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.evidence-tabs button{border:1px solid #d2d6db;background:#fff;color:#343940;border-radius:999px;padding:9px 15px;font-size:15px;font-weight:750;cursor:pointer}.evidence-tabs button.active{background:#202327;color:#fff;border-color:#202327}
+  .profile-head{display:grid;grid-template-columns:1fr 1.25fr;gap:18px;border:1px solid #dfe2e6;border-radius:13px;padding:19px;background:#fafafa;margin-bottom:15px}.profile-meta h4{font-size:25px;margin:0 0 8px}.profile-kind{font-size:14px;color:var(--red);font-weight:850;margin-bottom:7px}.profile-summary{font-size:18px;line-height:1.5;color:#444a51}.loop-title{font-size:15px;font-weight:850;color:#555b63;margin-bottom:10px}.loop{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.loop-step{text-align:center;padding:9px 4px;border-radius:7px;background:#e5e7ea;color:#858a91;font-size:13px;font-weight:750}.loop-step.on{background:#dff3e6;color:#17683f}.loop-step.partial{background:#fff0d9;color:#935116}.loop-note{font-size:14px;color:#686e76;margin-top:8px;line-height:1.4}
+  .evidence-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.evidence-item{border:1px solid #dfe2e6;border-radius:12px;overflow:hidden;background:#fff}.evidence-item img{width:100%;height:310px;object-fit:contain;background:#eef0f2;cursor:zoom-in;display:block}.evidence-body{padding:13px 14px 15px}.evidence-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:7px}.evidence-code{font-size:13px;color:var(--red);font-weight:850}.evidence-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.evidence-tag{font-size:11px;font-weight:800;padding:3px 6px;border-radius:5px;background:#edf4ff;color:#315ea8}.evidence-item h5{font-size:17px;margin:0 0 6px}.evidence-item p{font-size:14px;line-height:1.45;margin:0;color:#535960}.profile-judgement{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.profile-judgement div{padding:13px 15px;border-radius:9px;font-size:16px;line-height:1.45}.borrow{background:#edf8f1;border:1px solid #c8e3d1}.avoid{background:#fff0f2;border:1px solid #efc7cd}.profile-links{display:flex;gap:16px;margin-top:12px}.evidence-link{color:#315ea8;text-decoration:none;font-size:15px;font-weight:750}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;z-index:99;padding:28px}.lightbox.open{display:flex}.lightbox img{max-width:94vw;max-height:92vh;object-fit:contain}.lightbox button{position:absolute;right:25px;top:18px;background:#fff;border:0;border-radius:999px;width:42px;height:42px;font-size:25px;cursor:pointer}
+  @media(max-width:900px){.content{padding:36px 24px 54px}.content section{min-width:0;overflow-x:auto}.hero{padding:52px 28px 42px}.type-grid,.grid2,.baseline,.final-grid,.profile-head,.profile-judgement{grid-template-columns:1fr}.evidence-gallery{grid-template-columns:1fr 1fr}.sec-title{font-size:30px}.quadrant{overflow-x:auto}.heatmap,.compare{min-width:820px}.evidence-card{grid-template-columns:1fr}.decision{grid-template-columns:50px 160px 1fr}}
+  @media(max-width:600px){.page{width:100vw;max-width:100vw;overflow:hidden}.hero{width:100%;padding:44px 22px 40px}.hero h1{font-size:28px;line-height:1.2;letter-spacing:-.4px;overflow-wrap:anywhere}.hero .sub{font-size:15px;line-height:1.6}.eyebrow{font-size:15px}.hero-conclusion{font-size:17px;line-height:1.55;padding:18px}.content{width:100%;padding-left:18px;padding-right:18px}.sec-head{align-items:flex-start;gap:8px}.sec-head .time{flex:0 0 auto;margin-top:4px}.sec-title{font-size:27px}.evidence-gallery{grid-template-columns:1fr}.loop{grid-template-columns:repeat(3,1fr)}.decision{grid-template-columns:45px 1fr}.decision p{grid-column:2}.flow{grid-template-columns:repeat(2,1fr)}.boundary,.product-baseline,.metric-grid{grid-template-columns:1fr}.metric{border-right:0!important}}
+  @media print{body{width:1242px}.page{width:1242px;margin:0;box-shadow:none}.profile-head,.evidence-gallery,.profile-judgement,.evidence-tabs{display:none}.evidence-hub>p{display:none}}
+  .warning{margin-top:17px;border-left:6px solid var(--red);background:#faf1f2;border-radius:10px;padding:17px 20px;font-size:21px;line-height:1.5}
+  .decision-list{display:flex;flex-direction:column;gap:14px}
+  .decision{display:grid;grid-template-columns:56px 220px 1fr;gap:17px;align-items:start;border:1px solid var(--line);border-radius:13px;padding:19px 22px;background:#fff}
+  .num{width:44px;height:44px;border-radius:12px;background:var(--ink);color:#fff;font-size:23px;font-weight:850;display:flex;align-items:center;justify-content:center}
+  .decision h3{font-size:23px;margin:5px 0 0}.decision p{font-size:19px;line-height:1.52;margin:2px 0;color:#40454c}.decision p b{color:var(--red-dark)}
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:24px 0 16px}
+  .flow div{background:#f5f6f7;border:1px solid #dcdfe3;border-radius:11px;padding:17px 8px;text-align:center;font-size:18px;font-weight:750;line-height:1.35;position:relative}
+  .flow div:not(:last-child):after{content:"›";position:absolute;right:-12px;top:21px;font-size:29px;color:var(--red);z-index:2}
+  .boundary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  .boundary div{font-size:19px;line-height:1.45;background:#fbfbfc;border:1px dashed #c9cdd2;border-radius:10px;padding:15px 18px}
+  .product-baseline{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .product-baseline div{font-size:17px;line-height:1.45;background:#fff8e8;border:1px solid #ecd8a9;border-radius:10px;padding:13px 16px;color:#44484e}
+  .test-strip{margin-top:14px;background:#edf4ff;border:1px solid #cbdcf7;border-radius:11px;padding:14px 17px;font-size:16px;line-height:1.5;color:#3f464f}
+  .test-strip b{color:#244f93}
+  .test-strip.timing{background:#fff4e9;border-color:#f0d3b8}
+  .test-strip.timing b{color:#9a4b10}
+  .baseline{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .baseline-item{display:flex;gap:15px;padding:20px;border-radius:12px;border:1px solid var(--line)}
+  .baseline-item .icon{width:40px;height:40px;flex:0 0 40px;border-radius:10px;background:var(--blue-bg);color:var(--blue);font-size:21px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .baseline-item h3{font-size:22px;margin:1px 0 6px}.baseline-item p{font-size:18px;line-height:1.48;margin:0;color:#4d5259}
+  .metrics{margin-top:18px;border:1px solid #d8dce1;border-radius:13px;overflow:hidden}
+  .metrics-title{background:#202327;color:#fff;padding:13px 18px;font-size:20px;font-weight:850}
+  .metric-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+  .metric{padding:15px 17px;border-right:1px solid #e2e4e7;border-bottom:1px solid #e2e4e7;min-height:100px}
+  .metric:nth-child(3n){border-right:0}.metric:nth-child(n+4){border-bottom:0}
+  .metric b{font-size:17px;color:var(--red-dark)}.metric p{font-size:15.5px;line-height:1.42;margin:5px 0 0;color:#4b5057}
+  .final{background:linear-gradient(135deg,#fff1f3,#fff 60%);border:2px solid #eeb5bc;border-radius:16px;padding:27px 28px}
+  .final h3{font-size:27px;margin:0 0 14px;color:var(--red-dark)}
+  .final-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .final p{font-size:20px;line-height:1.55;margin:0}.final b{color:var(--red-dark)}
+  .footer{background:#17191c;color:#b9bec5;padding:24px 64px 30px;font-size:16px;line-height:1.5;display:flex;justify-content:space-between;gap:30px}
+  .footer strong{color:#fff}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <div class="eyebrow">C端预订Agent产品调研</div>
+    <h1>市场做到哪一步？<br/>如家首期该确认什么？</h1>
+    <div class="sub">10款产品深度体验 · 5分钟汇报版 · 2026年8月</div>
+    <div class="hero-conclusion"><b>一句话结论：</b>行业已经从“能聊天”进入“能承接场景任务与交易”，但仍是局部能力可用、端到端体验不稳定；如家不应照搬单一竞品，而应以行业基线叠加自身用户与系统事实，共同确定首期范围。</div>
+  </header>
+
+  <main class="content">
+    <section>
+      <div class="sec-head"><div class="sec-title">01｜四类Agent：建设重点与成熟度不同</div><div class="time">0:00—1:15</div></div>
+      <div class="type-grid">
+        <div class="type-card ota"><h3>OTA平台</h3><span class="members">美团、携程、飞猪、同程</span><p>最接近酒店复杂选房：供给强、可生成候选并承接预订；但复杂理解、事实可信和闭环深度差异明显。</p></div>
+        <div class="type-card ai"><h3>通用AI平台</h3><span class="members">千问、腾讯元宝、支付宝阿宝</span><p>流量、跨生态调度和支付能力突出；品牌身份、会员关系、售后与数据回传容易割裂。</p></div>
+        <div class="type-card brand"><h3>非酒店品牌自建</h3><span class="members">肯德基、瑞幸、东航</span><p>商品、会员、优惠与交易最可控，部分已到订单确认和支付；但复杂自然语言理解仍不稳定。</p></div>
+        <div class="type-card hotel"><h3>酒店品牌自建</h3><span class="members">当前无可调研产品</span><p><strong>尚未发现面向C端、可实际体验的预订Agent。</strong>因此无法开展同类体验对比，而非本轮主动漏选样本。</p></div>
+      </div>
+      <div class="quadrant">
+        <svg viewBox="0 0 1080 520" role="img" aria-label="十款产品复杂需求理解与品牌交易闭环成熟度象限">
+          <rect x="82" y="32" width="940" height="420" rx="10" fill="#fff" stroke="#d8dce1"/>
+          <rect x="552" y="32" width="470" height="210" fill="#fff4f5"/>
+          <line x1="82" y1="242" x2="1022" y2="242" stroke="#c9cdd3"/><line x1="552" y1="32" x2="552" y2="452" stroke="#c9cdd3"/>
+          <line x1="82" y1="452" x2="1022" y2="452" stroke="#33383e" stroke-width="2"/><line x1="82" y1="452" x2="82" y2="32" stroke="#33383e" stroke-width="2"/>
+          <text x="1022" y="488" text-anchor="end" font-size="18" fill="#343940">复杂需求理解与决策能力 →</text>
+          <text x="26" y="45" font-size="18" fill="#343940" transform="rotate(-90 26 45)">品牌交易闭环与可控程度 →</text>
+          <text x="94" y="62" font-size="17" fill="#777d84">交易深、理解弱</text><text x="1008" y="62" text-anchor="end" font-size="17" fill="#a2202e">市场机会区</text>
+          <text x="94" y="438" font-size="17" fill="#777d84">建议／外链</text><text x="1008" y="438" text-anchor="end" font-size="17" fill="#777d84">复杂决策强、闭环中等</text>
+          <rect x="780" y="74" width="210" height="94" rx="12" fill="none" stroke="#c91d2e" stroke-width="2" stroke-dasharray="8 7"/>
+          <text x="885" y="105" text-anchor="middle" font-size="17" font-weight="700" fill="#a01c2a">酒店品牌自建</text><text x="885" y="132" text-anchor="middle" font-size="15" fill="#666c73">当前无可体验产品</text><text x="885" y="154" text-anchor="middle" font-size="14" fill="#8a4c54">复杂选房＋会员＋自有闭环待验证</text>
+          <g fill="#d12b3e" stroke="#fff" stroke-width="2"><circle cx="720" cy="275" r="12"/><circle cx="670" cy="300" r="12"/><circle cx="615" cy="220" r="12"/><circle cx="790" cy="325" r="12"/></g>
+          <g font-size="15" fill="#3d4248"><text x="737" y="280">美团</text><text x="687" y="305">携程</text><text x="632" y="225">飞猪</text><text x="807" y="330">DeepTrip</text></g>
+          <g fill="#3f6db5" stroke="#fff" stroke-width="2"><circle cx="520" cy="205" r="12"/><circle cx="430" cy="345" r="12"/><circle cx="575" cy="180" r="12"/></g>
+          <g font-size="15" fill="#3d4248"><text x="537" y="210">千问</text><text x="447" y="350">元宝</text><text x="592" y="185">阿宝</text></g>
+          <g fill="#2d8a58" stroke="#fff" stroke-width="2"><circle cx="300" cy="118" r="12"/><circle cx="390" cy="92" r="12"/><circle cx="555" cy="145" r="12"/></g>
+          <g font-size="15" fill="#3d4248"><text x="317" y="123">小K</text><text x="407" y="97">Lucky</text><text x="572" y="150">东航</text></g>
+        </svg>
+        <div class="legend"><span><i style="background:#d12b3e"></i>OTA平台</span><span><i style="background:#3f6db5"></i>通用AI平台</span><span><i style="background:#2d8a58"></i>非酒店品牌自建</span><span><i style="background:#fff;border:2px dashed #c91d2e"></i>酒店品牌机会区</span></div>
+        <p class="quad-note">位置为基于本轮单账号、有限任务体验的定性判断，用于呈现相对格局，不构成精确评分或市场排名。</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><div class="sec-title">02｜十个产品四维能力基线</div><div class="time">1:15—2:25</div></div>
+      <table class="heatmap">
+        <colgroup><col style="width:24%"><col style="width:19%"><col style="width:19%"><col style="width:19%"><col style="width:19%"></colgroup>
+        <thead><tr><th>产品</th><th>复杂需求与补问</th><th>交易闭环</th><th>事实可信</th><th>响应与兜底</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="5">OTA平台｜最接近酒店复杂选房</td></tr>
+          <tr><td>同程 DeepTrip</td><td><span class="level lv4">强</span></td><td><span class="level lv2">中弱</span></td><td><span class="level lv3">中</span></td><td><span class="level lv1">弱</span></td></tr>
+          <tr><td>美团小团</td><td><span class="level lv4">较强</span></td><td><span class="level lv3">中</span></td><td><span class="level lv3">中</span></td><td><span class="level lv3">较强</span></td></tr>
+          <tr><td>飞猪千问专享</td><td><span class="level lv3">中</span></td><td><span class="level lv4">强</span></td><td><span class="level lv1">弱</span></td><td><span class="level lv3">中</span></td></tr>
+          <tr><td>携程问道</td><td><span class="level lv2">中弱</span></td><td><span class="level lv3">中</span></td><td><span class="level lv3">中</span></td><td><span class="level lv2">中弱</span></td></tr>
+          <tr class="group"><td colspan="5">通用AI平台｜跨生态强，品牌控制弱</td></tr>
+          <tr><td>千问</td><td><span class="level lv3">中</span></td><td><span class="level lv4">强</span></td><td><span class="level lv2">中弱</span></td><td><span class="level lv3">中</span></td></tr>
+          <tr><td>支付宝阿宝</td><td><span class="level lv3">中</span></td><td><span class="level lv4">较强</span></td><td><span class="level lv3">中</span></td><td><span class="level lv3">中</span></td></tr>
+          <tr><td>腾讯元宝</td><td><span class="level lv3">中</span></td><td><span class="level lv1">弱</span></td><td><span class="level lv1">弱</span></td><td><span class="level lv2">中弱</span></td></tr>
+          <tr class="group"><td colspan="5">非酒店品牌自建｜交易可控，理解能力受限</td></tr>
+          <tr><td>肯德基小K</td><td><span class="level lv1">弱</span></td><td><span class="level lv4">强</span></td><td><span class="level lv3">中</span></td><td><span class="level lv3">中</span></td></tr>
+          <tr><td>瑞幸 AI Lucky</td><td><span class="level lv2">中弱</span></td><td><span class="level lv4">强</span></td><td><span class="level lv1">弱</span></td><td><span class="level lv3">中</span></td></tr>
+          <tr><td>东航东东</td><td><span class="level lv3">中</span></td><td><span class="level lv4">较强</span></td><td><span class="level lv3">中</span></td><td><span class="level lv1">弱</span></td></tr>
+        </tbody>
+      </table>
+      <p class="market-note">“强／中／弱”为本轮统一任务体验的定性归纳；事实可信指价格、库存、设施、权益和政策是否有可靠来源并能在交易前校验。</p>
+      <table class="compare">
+        <thead><tr><th>业务方最相关的参照</th><th>已经做到什么</th><th>仍然做不好的地方</th><th>对如家的意义</th></tr></thead>
+        <tbody>
+          <tr><td><b>OTA平台</b><br/>美团／携程／飞猪／同程</td><td>复杂需求发现、补问、候选方案、酒店卡与预订接力</td><td>政策可能失真、等待过长、无结果与售后衔接不稳定</td><td><b>供给与交易连接决定商业上限：</b>定义复杂选房的交互上限与可信底线</td></tr>
+          <tr><td><b>品牌自建</b><br/>小K／Lucky／东航</td><td>会员、优惠、商品、订单确认和支付可在自有体系完成</td><td>商品更标准化；复杂意图和知识理解仍会失败</td><td><b>闭环不等于可信：</b>借鉴确认卡和交易控制，不能照搬其理解能力</td></tr>
+        </tbody>
+      </table>
+      <div class="opportunity"><b>市场空白：</b>酒店品牌当前尚无可实际体验的C端预订Agent；“复杂住宿需求理解＋品牌会员权益＋自有可信交易接力”仍未被成熟验证。</div>
+      <div class="evidence-hub">
+        <h3>追问即查｜产品证据档案</h3>
+        <p>每个产品按用户任务链路展示多张证据；标签说明截图证明的是优势、失败、闭环、特色还是优惠运营。</p>
+        <div class="evidence-tabs" id="evidenceTabs"></div>
+        <div class="profile-head"><div class="profile-meta"><div class="profile-kind" id="profileKind"></div><h4 id="profileName"></h4><div class="profile-summary" id="profileSummary"></div></div><div><div class="loop-title">端内业务闭环程度</div><div class="loop" id="profileLoop"></div><div class="loop-note" id="loopNote"></div></div></div>
+        <div class="evidence-gallery" id="evidenceGallery"></div>
+        <div class="profile-judgement"><div class="borrow"><b>如家可借鉴：</b><span id="profileBorrow"></span></div><div class="avoid"><b>如家应规避：</b><span id="profileAvoid"></span></div></div>
+        <div class="profile-links"><a class="evidence-link" id="profileLink" target="_blank" rel="noopener">查看飞书全部原始截图 →</a></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><div class="sec-title">03｜如家首期需要联合确认的5件事</div><div class="time">2:25—3:25</div></div>
+      <div class="decision-list">
+        <div class="decision"><div class="num">1</div><h3>用户与场景</h3><p><b>行业基线：</b>复杂、模糊、多约束需求更能体现对话价值。<br/><b>如家需确认：</b>结合客服语料、搜索行为与访谈，确认规模、频次、失败点和首期优先场景。</p></div>
+        <div class="decision"><div class="num">2</div><h3>产品边界</h3><p><b>行业基线：</b>从信息建议到订单支付均有实践，闭环越深，风险和系统要求越高。<br/><b>如家需确认：</b>首期做到推荐、交易接力还是更深闭环，以及与搜索、客服如何分工。</p></div>
+        <div class="decision"><div class="num">3</div><h3>核心交互</h3><p><b>行业基线：</b>优秀实践集中在必要补问、少量候选、取舍解释与无结果降级。<br/><b>如家需确认：</b>核心参数、补问轮次、候选数量、解释方式和失败降级规则。</p></div>
+        <div class="decision"><div class="num">4</div><h3>事实与交易责任</h3><p><b>行业基线：</b>订单卡和支付入口不能抵消关键事实错误。<br/><b>如家需确认：</b>价格、库存、权益、政策的权威来源，用户确认节点以及工具失败和人工兜底。</p></div>
+        <div class="decision"><div class="num">5</div><h3>价值与成功标准</h3><p><b>行业基线：</b>尚无充分证据证明酒店订单净增量。<br/><b>如家需确认：</b>优先验证决策效率、会员直订、交易接力还是一手需求数据；优惠仅作实验变量还是长期能力。</p></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><div class="sec-title">04｜基于市场调研的候选产品建议</div><div class="time">3:25—4:05</div></div>
+      <p class="lead"><b>优先验证方向：</b>不是“全能聊天机器人”，而是与传统搜索并行的<strong>复杂选房决策助手</strong>。</p>
+      <div class="flow">
+        <div>App<br/>稳定入口</div><div>自然语言<br/>表达需求</div><div>只补问<br/>关键参数</div><div>2—3个<br/>候选方案</div><div>理由／取舍<br/>支持修改</div><div>携参进入<br/>原预订流程</div>
+      </div>
+      <div class="boundary">
+        <div>✓ 价格、库存、权益、政策由业务系统实时查询</div><div>✓ 未支付或恢复会话时重新刷新关键事实</div>
+        <div>✕ 不以开放闲聊、数字人、特色语音包作为P0</div><div>✕ 不让Agent未经用户确认自主下单或支付</div>
+      </div>
+      <div class="product-baseline">
+        <div><b>P0核心参数：</b>目的地、日期、人数、预算、位置、房型、会员权益与特殊政策。</div>
+        <div><b>候选卡结构：</b>匹配点、未满足点、价格、距离、权益、政策、推荐理由与取舍。</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><div class="sec-title">05｜下一阶段：把行业发现变成如家能力基线</div><div class="time">4:10—4:45</div></div>
+      <div class="baseline">
+        <div class="baseline-item"><div class="icon">A</div><div><h3>真实用户与场景</h3><p>脱敏客服语料、搜索行为、用户访谈；确认需求规模、优先级和现有失败点。</p></div></div>
+        <div class="baseline-item"><div class="icon">B</div><div><h3>产品与对话设计</h3><p>意图／参数、补问策略、上下文、推荐解释、无结果降级、交易接力。</p></div></div>
+        <div class="baseline-item"><div class="icon">C</div><div><h3>系统与技术可行性</h3><p>搜索、价库、会员、政策、订单支付、CLI／Tool、模型与系统架构能力。</p></div></div>
+        <div class="baseline-item"><div class="icon">D</div><div><h3>评测、安全与ROI</h3><p>准确、收敛、可信、时延、稳定性、权限与人工兜底；成本及ROI敏感性。</p></div></div>
+      </div>
+      <div class="metrics">
+        <div class="metrics-title">首期验证不能只看订单：建议同步观察6类指标</div>
+        <div class="metric-grid">
+          <div class="metric"><b>复杂需求完成</b><p>任务完成率、必要槽位补全率、无结果有效降级率</p></div>
+          <div class="metric"><b>决策效率</b><p>首个有效结果、完整方案及选中候选所需时长</p></div>
+          <div class="metric"><b>推荐价值</b><p>候选点击、推荐接受、对比使用与原因反馈</p></div>
+          <div class="metric"><b>交易接力</b><p>携参成功、预订页到达、刷新差异及支付完成</p></div>
+          <div class="metric"><b>安全可信</b><p>关键事实错误、政策冲突、用户纠错与人工接管</p></div>
+          <div class="metric"><b>需求数据</b><p>需求标签完整率、筛选器未覆盖需求及约束组合</p></div>
+        </div>
+      </div>
+      <div class="test-strip"><b>统一测试任务：</b>明确需求、模糊需求、多约束冲突、无完全匹配、条件修改、上下文指代、历史订单、政策冲突、未支付刷新、取消退改、闲聊越界与嘈杂语音。</div>
+      <div class="test-strip timing"><b>候选时延口径（待基线测试冻结）：</b>立即展示任务状态；首个有效结果尽量≤20秒，复杂任务原则≤30秒；超时必须可取消并降级到传统搜索，后续再确定P50／P95阈值。</div>
+      <p class="lead" style="margin-top:18px;font-size:19px;color:#5d6269">离线POC只在需要消除关键技术不确定性时开展，不作为必须完成的KPI。</p>
+    </section>
+
+    <section style="margin-bottom:8px">
+      <div class="sec-head"><div class="sec-title">06｜本次调研能下什么结论？</div><div class="time">4:45—5:00</div></div>
+      <div class="final">
+        <div class="final-grid">
+          <div><h3>现在可以明确</h3><p><b>行业水平、能力差异、成熟实践、失败类型和候选产品方向</b>，足以支撑如家开展首期范围讨论和技术能力基线设计。</p></div>
+          <div><h3>现在还不能判断</h3><p><b>如家真实需求规模、最终技术方案、成本ROI及是否立项上线</b>；需结合内部事实完成后续联合论证。</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div><strong>口径说明：</strong>基于10款产品单账号、单版本深度体验与公开资料；评分仅用于模块参照，不代表市场排名。</div><div><strong>完整证据：</strong>原报告含10款产品评分、公网来源及137张原始截图。</div></footer>
+</div>
+<div class="lightbox" id="lightbox"><button id="lightboxClose" aria-label="关闭大图">×</button><img id="lightboxImage" alt="放大的产品体验截图"/></div>
+<script>
+const profiles=[
+{name:'美团小团',kind:'OTA平台',summary:'复杂需求与无结果降级突出，优惠运营有辨识度；酒店交易最终回到原预订流程。',loop:[2,2,2,1,0,0],loopNote:'完成建议、商品卡和携参跳转；订单确认、支付与售后由原流程承接。',borrow:'复杂需求补问、不同取舍的2—3套方案、优惠任务入口。',avoid:'不能把跳回原流程视为Agent闭环；价库仍需再次确认。',block:'PwqRd235zoUzFYxbyivcJCkUnBf',shots:[
+['MT-01','入口与使用引导','首页持续露出小团入口。',['特色功能'],'evidence/mt-entry.png'],['MT-02','找优惠与一键领券','可自动用券比价并批量领取优惠券。',['优惠运营','做得好'],'evidence/mt-coupon.png'],['MT-03','多约束无完全匹配','识别条件冲突并给出不同取舍方案。',['做得好'],'evidence/mt-complex.jpg'],['MT-04','交易回到原流程','提醒库存和价格需在美团或酒店确认。',['闭环证据','边界'],'evidence/mt-handoff.png']]},
+{name:'携程问道',kind:'OTA平台',summary:'酒店对比、拍照与翻译等旅行工具丰富；可将需求带入酒店列表，并从酒店卡接力至原有订单提交页，但复杂需求补问、地点识别和无结果处理不稳定。',loop:[2,2,2,1,0,0],loopNote:'完成建议、酒店列表、酒店卡和原有订房流程接力；下单仍由用户在携程原页面确认，未观察到对话内自主支付。',borrow:'保留传统搜索，与对话入口来回切换；把酒店对比做成明确工具。',avoid:'避免复杂约束直接空结果或过早跳大范围列表。',block:'CIVvdI36ro7p1OxcbtqcRqlXnPe',shots:[
+['XC-01','需求携参进入酒店列表','AI将地点、日期、人数及“海景”等条件带入携程酒店列表；传统筛选继续承接决策。',['闭环证据','搜索接力'],'evidence/ctrip-list.png'],['XC-02','酒店卡提供预订入口','问道回复酒店与房型卡，点击“订”即可继续进入携程原有订房流程。',['商品卡','闭环证据'],'evidence/ctrip-booking-card.png'],['XC-03','进入原有订单提交页','房型、日期、早餐、入住人、优惠和价格被带入原有订单页，由用户确认并提交订单。',['交易接力','用户确认'],'evidence/ctrip-order-submit.png'],['XC-04','旅行工具集合','PK酒店对比、拍照助手、菜单翻译集中露出。',['特色功能'],'evidence/ctrip-tools.png'],['XC-05','酒店对比','同屏展示两家酒店的价格与差异。',['做得好'],'evidence/ctrip-compare.png'],['XC-06','菜单翻译','上传菜单照片进入点菜辅助。',['特色功能'],'evidence/ctrip-menu.png']]},
+{name:'飞猪千问专享',kind:'OTA平台',summary:'酒店卡、订单卡和支付承接较深；意图偶有偏差，且出现政策回答与详情页矛盾。',loop:[2,2,2,2,2,1],loopNote:'从建议到支付基本贯通；售后与关键政策可信仍需依赖业务页面。',borrow:'订单确认卡、支付前用户确认、关键事实展示来源。',avoid:'模型回答不得覆盖详情页政策；价格、库存、政策必须刷新。',block:'Nz5ld0vErosngLxEHtIcVfQsnQd',shots:[
+['FZ-01','千问专享入口','飞猪首页提供独立AI入口。',['入口'],'evidence/fliggy-entry.png'],['FZ-02','拍照讲解','拍景点、建筑与展品并生成导览说明。',['特色功能'],'evidence/fliggy-photo.png'],['FZ-03','订单确认卡','自动带入酒店、房型、日期、入住人和总价。',['闭环证据','做得好'],'evidence/fliggy-order.jpg'],['FZ-04','宠物政策冲突','AI称可携宠，详情页显示暂不支持。',['关键失败','可信风险'],'evidence/fliggy-policy-page.png']]},
+{name:'同程 DeepTrip',kind:'OTA平台',summary:'复杂约束、冲突分析、必要补问和方案解释最突出；等待较长，交易主要靠携参跳转。',loop:[2,2,2,1,0,0],loopNote:'决策前段较强；下单和支付仍交还同程既有页面。',borrow:'将约束拆为必须／偏好／可放宽，主动解释冲突和降级顺序。',avoid:'避免长等待和重复确认；进度必须可见、可取消、可降级。',block:'EbuFdua86oBrsdxdSh7cTcGYn1f',shots:[
+['TC-01','模糊需求澄清','先给出初步房型和价格信息，再明确追问入住日期、人数及床型，使模糊需求继续收敛。',['做得好','补问收敛'],'evidence/deeptrip-clarify.png'],['TC-02','推荐酒店与房型呈现','以房型、面积、价格和差异化理由呈现候选，并说明无法直接支付、需要进入同程原有预订流程。',['方案解释','交易接力'],'evidence/deeptrip-recommend.png'],['TC-03','DeepTrip专属活动','每轮回复可露出“银联×DeepTrip”专属省钱活动，覆盖住宿、餐饮与商圈优惠。',['专属优惠','运营活动'],'evidence/deeptrip-exclusive.png'],['TC-04','双入口设计','快捷预订与复杂对话分开承接。',['特色功能'],'evidence/deeptrip-entry.png'],['TC-05','政策冲突分析','发现官方与外部信息矛盾并暂停交易。',['做得好','安全'],'evidence/deeptrip-conflict.png'],['TC-06','等待与重复确认','复杂任务耗时长，关键条件反复确认。',['关键失败','待复测'],'evidence/deeptrip-wait.png'],['TC-07','携参进入预订页','带入日期与人数并提醒用户确认。',['闭环证据'],'evidence/deeptrip-handoff.png']]},
+{name:'千问',kind:'通用AI平台',summary:'可跨生态调用飞猪商品和支付，消费闭环深；酒店品牌身份、售后与数据回传边界不清。',loop:[2,2,2,2,2,1],loopNote:'建议到支付在千问内贯通；退改等售后仍需回到外部应用。',borrow:'外部Agent可复用如家Tool能力，但需明确身份、状态和售后归属。',avoid:'不能让跨生态闭环造成用户关系、订单责任和数据回传割裂。',block:'K3uddgf0CoPv97xDyI3cOcwWnpe',shots:[
+['QW-01','调用飞猪酒店卡','在通用AI内召回真实酒店商品。',['闭环证据'],'evidence/qwen-card.png'],['QW-02','订单确认卡','生成日期、房型、入住人与价格信息。',['闭环证据'],'evidence/qwen-order.png'],['QW-03','App内支付','千问内完成飞猪订单支付确认。',['闭环证据','做得好'],'evidence/qwen-pay.png'],['QW-04','售后边界','订单退改需回到外部App处理。',['关键失败','售后边界'],'evidence/qwen-after.png']]},
+{name:'腾讯元宝',kind:'通用AI平台',summary:'开放问题理解和方案表达灵活；酒店只能给建议或外链，价库、会员、支付和售后割裂。',loop:[2,1,0,0,0,0],loopNote:'停留在建议与外部入口分发，未形成酒店交易闭环。',borrow:'外部流量可作为线索来源，需单独监测外链到店成功率。',avoid:'外链不能计作闭环，也不能替代自有端会员和交易状态。',block:'ET7hdHLxSoL8poxN2DAcxf5UnPb',shots:[
+['YB-01','酒店方案表达','能围绕多约束生成酒店建议。',['做得好'],'evidence/yuanbao-recommend.png'],['YB-02','交易能力边界','明确未接入酒店订单和支付接口。',['关键失败','闭环边界'],'evidence/yuanbao-boundary.png'],['YB-03','回复华住会外链','可以给出华住会等品牌官网链接，但没有品牌身份、会员权益、实时价库、订单与售后状态。',['外链分发','闭环边界'],'evidence/yuanbao-huazhu.png']]},
+{name:'支付宝阿宝',kind:'通用AI平台',summary:'多平台酒店比价、权益和服务聚合突出；Agent本身与具体服务页的责任边界仍较明显。',loop:[2,2,2,1,1,0],loopNote:'可完成比价并进入平台服务；部分确认与支付发生在具体服务页。',borrow:'将跨平台比价思路转化为如家品牌内门店、房型和会员权益比较。',avoid:'聚合入口的规模不能直接归因于Agent推荐增量。',block:'Pbuqd4C0Soezvtx8KlmcVBQYnkc',shots:[
+['AB-01','多平台比价','同屏展示同程、美团、飞猪等渠道价格。',['特色功能','做得好'],'evidence/abao-compare.png'],['AB-02','低价酒店聚合','聚合酒店卡、优惠与不同服务入口。',['特色功能','优惠运营'],'evidence/abao-lowprice.png'],['AB-03','服务页承接','Agent提供预订入口，具体流程进入服务页。',['闭环证据','边界'],'evidence/abao-service.png']]},
+{name:'肯德基小K',kind:'非酒店品牌自建',summary:'语音、人设、商品卡、订单确认和支付链路完整；基础商品意图仍可能识别失败。',loop:[2,2,2,2,2,1],loopNote:'点餐到支付完整；售后未在本轮重点验证。',borrow:'垂直边界、少文本商品卡、修改方案、订单确认和支付控制。',avoid:'先确保听懂基础商品意图，再追求人设和全闭环。',block:'I0r6ddYX6oXBDSxQPLfcYxB5nFg',shots:[
+['KFC-01','语音与人设入口','孙颖莎语音形象直接承接点餐。',['特色功能'],'evidence/kfc-voice.jpg'],['KFC-02','订单确认卡','展示地址、餐厅、商品、费用和卡券。',['闭环证据','做得好'],'evidence/kfc-confirm.jpg'],['KFC-03','用户确认支付','在收银台由用户选择方式并确认。',['闭环证据'],'evidence/kfc-pay.jpg'],['KFC-04','基础意图失败','询问商品价格时未正确回答。',['关键失败'],'evidence/kfc-fail.png'],['KFC-05','商品卡优先、文本解释受限','面对优惠券问题，系统完成检索后直接推荐点餐方案和商品卡，没有针对问题进行充分的文字解释。',['商品卡','交互边界'],'evidence/kfc-card-only.png']]},
+{name:'瑞幸 AI Lucky',kind:'非酒店品牌自建',summary:'可使用历史消费、优惠券与门店信息并授权支付；知识、意图和优惠理解仍不稳定。',loop:[2,2,2,2,2,1],loopNote:'推荐、订单与支付较完整；售后未在本轮重点验证。',borrow:'会员优惠、历史订单和门店数据可提升个性化，但必须服从当次明确需求。',avoid:'不得用历史偏好覆盖本轮条件，也不能错误理解优惠问题。',block:'WMSld8iZ9oAtNsxmYJ1c4cXznyc',shots:[
+['LK-01','优惠券入口','查看并直接使用个人优惠券。',['优惠运营'],'evidence/lucky-coupon.png'],['LK-02','历史消费推荐','可基于上一单与偏好推荐商品。',['特色功能','做得好'],'evidence/lucky-history.png'],['LK-03','授权支付','生成门店、商品、金额与AI付授权页。',['闭环证据'],'evidence/lucky-pay.png'],['LK-04','优惠意图失败','“8杯有什么优惠”被错误理解。',['关键失败'],'evidence/lucky-fail.png']]},
+{name:'东航东东',kind:'非酒店品牌自建',summary:'三套航班方案、推荐理由、专享价与行程规划表达完整；响应和复杂任务稳定性不足。',loop:[2,2,2,1,1,1],loopNote:'机票可进入预订，支付与售后未在本轮完整验证。',borrow:'候选方案说明时间、价格、权益和出行成本；等待过程展示任务进度。',avoid:'简单问题不应等待过长；复杂需求无结果时必须降级。',block:'Ue9UdCaXDoTPDlxHCNecsZfHnic',shots:[
+['DH-01','必要信息补问','缺少出发地、目的地与日期时主动澄清。',['做得好'],'evidence/east-clarify.png'],['DH-02','三套航班方案','按时间、价格和权益给出三种选择。',['特色功能','做得好'],'evidence/east-three.png'],['DH-03','任务进度反馈','显示天气、航班、酒店、景点和行程规划进度。',['特色功能','等待反馈'],'evidence/east-progress.png'],['DH-04','明确拒绝非旅游闲聊','面对饮品比较等非旅游问题，明确说明只提供旅游相关信息与建议，并引导用户回到行程、景点、机票或酒店任务。',['边界设计','做得好'],'evidence/east-no-chat.png']]}
+];
+const steps=['建议','商品卡','携参跳转','订单确认','支付','售后'];
+const tabs=document.getElementById('evidenceTabs'),gallery=document.getElementById('evidenceGallery'),lb=document.getElementById('lightbox');
+function showProfile(i){const d=profiles[i];document.querySelectorAll('#evidenceTabs button').forEach((b,j)=>b.classList.toggle('active',i===j));document.getElementById('profileKind').textContent=d.kind;document.getElementById('profileName').textContent=d.name;document.getElementById('profileSummary').textContent=d.summary;document.getElementById('loopNote').textContent=d.loopNote;document.getElementById('profileBorrow').textContent=d.borrow;document.getElementById('profileAvoid').textContent=d.avoid;document.getElementById('profileLink').href='https://bthhotels.feishu.cn/wiki/Rl8vwkn9Ei9WfXkaGTocMjJQnpg';const loop=document.getElementById('profileLoop');loop.innerHTML='';steps.forEach((s,j)=>{const n=document.createElement('div');n.className='loop-step '+(d.loop[j]===2?'on':d.loop[j]===1?'partial':'');n.textContent=s;loop.appendChild(n)});gallery.innerHTML='';d.shots.forEach(s=>{const item=document.createElement('article');item.className='evidence-item';item.innerHTML='<img src="'+s[4]+'" alt="'+s[1]+'"><div class="evidence-body"><div class="evidence-top"><span class="evidence-code">'+s[0]+'</span><span class="evidence-tags">'+s[3].map(t=>'<span class="evidence-tag">'+t+'</span>').join('')+'</span></div><h5>'+s[1]+'</h5><p>'+s[2]+'</p></div>';item.querySelector('img').addEventListener('click',e=>{document.getElementById('lightboxImage').src=e.currentTarget.src;lb.classList.add('open')});gallery.appendChild(item)});}
+profiles.forEach((d,i)=>{const b=document.createElement('button');b.type='button';b.textContent=d.name;b.addEventListener('click',()=>showProfile(i));tabs.appendChild(b)});showProfile(0);
+document.getElementById('lightboxClose').addEventListener('click',()=>lb.classList.remove('open'));lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('open')});
+</script>
+</body>
+</html>
